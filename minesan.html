@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sistem Laporan Kasir</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+    <style>
+        :root { --brand-red: #c1121c; --brand-dark: #910d14; --off-white: #f8fafc; --text-main: #1e293b; --text-muted: #94a3b8; --border-light: #f1f5f9; --success: #059669; }
+        * { box-sizing: border-box; font-family: 'Inter', sans-serif; margin: 0; padding: 0; }
+        body { background-color: var(--off-white); color: var(--text-main); -webkit-tap-highlight-color: transparent; }
+
+        /* Navbar */
+        .navbar { background-color: #ffffff; padding: 18px 20px; display: flex; align-items: center; position: sticky; top: 0; z-index: 1000; border-bottom: 1px solid var(--border-light); }
+        .menu-btn { background: none; border: none; font-size: 24px; cursor: pointer; margin-right: 15px; color: var(--brand-red); line-height: 1; }
+        .nav-title { font-weight: 700; font-size: 0.9rem; text-transform: uppercase; letter-spacing: 0.5px; }
+        
+        /* Sidebar (Mirip Awal) */
+        .sidebar { position: fixed; left: -280px; top: 0; height: 100%; width: 280px; background: white; transition: 0.3s cubic-bezier(0.4, 0, 0.2, 1); z-index: 1100; padding: 40px 20px; box-shadow: 10px 0 30px rgba(0,0,0,0.05); }
+        .sidebar.active { left: 0; }
+        .overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.4); display: none; z-index: 1050; backdrop-filter: blur(2px); }
+        .overlay.active { display: block; }
+
+        .nav-item { display: flex; justify-content: space-between; align-items: center; padding: 18px 0; color: var(--text-main); text-decoration: none; font-weight: 600; font-size: 0.9rem; border-bottom: 1px solid var(--border-light); cursor: pointer; }
+        .nav-item i { font-size: 0.7rem; color: #ccc; }
+
+        /* Main Content */
+        .container { padding: 20px; max-width: 480px; margin: auto; }
+        .card { background: #ffffff; border-radius: 20px; padding: 24px; margin-bottom: 20px; border-top: 5px solid var(--brand-red); box-shadow: 0 4px 12px rgba(0,0,0,0.03); }
+        .scroll-container { max-height: 220px; overflow-y: auto; margin-top: 10px; }
+        .data-row { display: flex; justify-content: space-between; padding: 14px 0; border-bottom: 1px solid var(--border-light); font-size: 0.85rem; }
+
+        /* Form */
+        label { display: block; font-size: 0.7rem; font-weight: 700; color: var(--text-muted); margin-bottom: 8px; text-transform: uppercase; }
+        input { width: 100%; padding: 14px; border: 1.5px solid #e2e8f0; border-radius: 12px; margin-bottom: 20px; outline: none; font-size: 1rem; transition: 0.2s; }
+        input:focus { border-color: var(--brand-red); }
+        
+        .btn-primary { width: 100%; padding: 16px; border: none; border-radius: 14px; background: var(--brand-red); color: white; font-weight: 700; cursor: pointer; margin-bottom: 10px; font-size: 0.9rem; }
+        .btn-secondary { width: 100%; padding: 16px; border: none; border-radius: 14px; background: #e2e8f0; color: var(--text-main); font-weight: 700; cursor: pointer; font-size: 0.9rem; }
+
+        /* Custom Modal UI */
+        .modal-container { position: fixed; inset: 0; display: none; align-items: center; justify-content: center; z-index: 2000; padding: 20px; background: rgba(0,0,0,0.5); backdrop-filter: blur(4px); }
+        .modal-container.active { display: flex; }
+        .modal-content { background: white; width: 100%; max-width: 340px; border-radius: 24px; padding: 30px; text-align: center; }
+
+        .page { display: none; }
+        .active-page { display: block; }
+    </style>
+</head>
+<body>
+
+    <div class="modal-container" id="modal-ui">
+        <div class="modal-content">
+            <div id="modal-title" style="font-weight:700; margin-bottom:10px;"></div>
+            <div id="modal-desc" style="color:var(--text-muted); font-size:0.9rem; margin-bottom:25px;"></div>
+            <div id="modal-buttons" style="display:flex; flex-direction:column; gap:10px;"></div>
+        </div>
+    </div>
+
+    <nav class="navbar">
+        <button class="menu-btn" onclick="toggleMenu()">☰</button>
+        <div class="nav-title" id="header-title">LAPORAN MINESAN</div>
+    </nav>
+
+    <div class="sidebar" id="sidebar">
+        <h2 style="font-size: 1.1rem; margin-bottom: 25px;">MENU</h2>
+        <div class="nav-item" onclick="window.location.href='portal.html'">Beranda <i class="fas fa-chevron-right"></i></div>
+        <div class="nav-item" onclick="showPage('harian', 'LAPORAN MINESAN')">Laporan Harian <i class="fas fa-chevron-right"></i></div>
+        <div class="nav-item" onclick="showPage('bulanan', 'LAPORAN BULANAN')">Laporan Bulanan <i class="fas fa-chevron-right"></i></div>
+        <div class="nav-item" onclick="showPage('ekspor', 'KELOLA DATA')">Ekspor & Impor <i class="fas fa-chevron-right"></i></div>
+        <div class="nav-item" onclick="promptReset()" style="color: var(--brand-red); margin-top: 40px;">Hapus Semua Data <i class="fas fa-chevron-right"></i></div>
+    </div>
+    <div class="overlay" id="overlay" onclick="toggleMenu()"></div>
+
+    <div class="container">
+        <div id="page-harian" class="page active-page">
+            <div class="card">
+                <label>Pilih Tanggal</label>
+                <input type="date" id="tgl">
+                <label>Nominal Minus (Rp)</label>
+                <input type="number" id="minus" placeholder="Masukkan angka..." oninput="updateHelper()">
+                <div id="helper" style="font-weight:700; color:var(--success); font-size:0.9rem; margin-top:-15px; margin-bottom:20px;">Rp 0</div>
+                <button class="btn-primary" onclick="simpan()">SIMPAN DATA</button>
+            </div>
+            <div class="card">
+                <label>Riwayat Input Terbaru</label>
+                <div class="scroll-container" id="recent-list"></div>
+            </div>
+        </div>
+
+        <div id="page-bulanan" class="page">
+            <div class="card" id="rekap-container"></div>
+            <button class="btn-primary" onclick="exportExcel()">UNDUH LAPORAN EXCEL</button>
+        </div>
+
+        <div id="page-ekspor" class="page">
+            <div class="card">
+                <label>Kelola File Excel</label>
+                <div class="nav-item" onclick="downloadTemplate()">Unduh Format (Template) <i class="fas fa-download"></i></div>
+                <div class="nav-item" onclick="triggerImport()">Impor / Upload File Excel <i class="fas fa-upload"></i></div>
+                <input type="file" id="file-input" style="display:none" accept=".xlsx, .xls" onchange="importExcel(event)">
+            </div>
+            <div class="card">
+                <label>Backup</label>
+                <div class="nav-item" onclick="exportExcel()">Backup Seluruh Data <i class="fas fa-file-excel"></i></div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const DB_KEY = 'kasir_pwa_v5';
+        document.getElementById('tgl').valueAsDate = new Date();
+
+        function toggleMenu() {
+            document.getElementById('sidebar').classList.toggle('active');
+            document.getElementById('overlay').classList.toggle('active');
+        }
+
+        function showPage(id, title) {
+            document.querySelectorAll('.page').forEach(p => p.classList.remove('active-page'));
+            document.getElementById('page-' + id).classList.add('active-page');
+            document.getElementById('header-title').innerText = title;
+            if(id === 'harian') renderHistory();
+            if(id === 'bulanan') renderBulanan();
+            toggleMenu();
+        }
+
+        function updateHelper() {
+            const val = document.getElementById('minus').value;
+            document.getElementById('helper').innerText = "Rp " + (parseInt(val) || 0).toLocaleString('id-ID');
+        }
+
+        function simpan() {
+            const tgl = document.getElementById('tgl').value;
+            const amt = document.getElementById('minus').value;
+            if(!amt) return openUiModal("Peringatan", "Masukkan nominal terlebih dahulu.");
+            const data = JSON.parse(localStorage.getItem(DB_KEY)) || [];
+            data.unshift({ Tanggal: tgl, Nominal: parseInt(amt) });
+            localStorage.setItem(DB_KEY, JSON.stringify(data));
+            document.getElementById('minus').value = "";
+            updateHelper();
+            renderHistory();
+            openUiModal("Berhasil", "Data tersimpan.");
+        }
+
+        function renderHistory() {
+            const list = document.getElementById('recent-list');
+            const data = JSON.parse(localStorage.getItem(DB_KEY)) || [];
+            list.innerHTML = data.length ? "" : "Belum ada data.";
+            data.slice(0, 10).forEach(item => {
+                list.innerHTML += `<div class="data-row"><span>${item.Tanggal}</span><span style="font-weight:700; color:var(--brand-red)">Rp ${item.Nominal.toLocaleString()}</span></div>`;
+            });
+        }
+
+        function renderBulanan() {
+            const container = document.getElementById('rekap-container');
+            const data = JSON.parse(localStorage.getItem(DB_KEY)) || [];
+            const rekap = {};
+            data.forEach(item => {
+                const m = new Date(item.Tanggal).toLocaleString('id-ID', { month: 'long', year: 'numeric' });
+                rekap[m] = (rekap[m] || 0) + item.Nominal;
+            });
+            container.innerHTML = "<label>Ringkasan Laporan</label>";
+            for (const [bulan, total] of Object.entries(rekap)) {
+                container.innerHTML += `<div class="nav-item"><span>${bulan}</span><span style="color:var(--brand-red)">Rp ${total.toLocaleString()}</span></div>`;
+            }
+        }
+
+        function exportExcel() {
+            const data = JSON.parse(localStorage.getItem(DB_KEY)) || [];
+            const ws = XLSX.utils.json_to_sheet(data);
+            const wb = XLSX.utils.book_new();
+            XLSX.utils.book_append_sheet(wb, ws, "Laporan");
+            XLSX.writeFile(wb, "Laporan_Minesan.xlsx");
+        }
+
+        function downloadTemplate() {
+            const data = [{ Tanggal: new Date().toISOString().split('T')[0], Nominal: "" }];
+            const ws = XLSX.utils.json_to_sheet(data);
+            const wb = XLSX.utils.book_new();
+            XLSX.utils.book_append_sheet(wb, ws, "Input");
+            XLSX.writeFile(wb, "Format_Laporan_Minesan.xlsx");
+        }
+
+        function triggerImport() { document.getElementById('file-input').click(); }
+
+        function importExcel(event) {
+            const file = event.target.files[0];
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                const workbook = XLSX.read(new Uint8Array(e.target.result), { type: 'array' });
+                const json = XLSX.utils.sheet_to_json(workbook.Sheets[workbook.SheetNames[0]]);
+                localStorage.setItem(DB_KEY, JSON.stringify(json));
+                renderHistory();
+                openUiModal("Impor Berhasil", json.length + " data dimasukkan.");
+            };
+            reader.readAsArrayBuffer(file);
+        }
+
+        function openUiModal(title, desc) {
+            document.getElementById('modal-title').innerText = title;
+            document.getElementById('modal-desc').innerText = desc;
+            document.getElementById('modal-buttons').innerHTML = `<button class="btn-primary" onclick="closeUiModal()">Tutup</button>`;
+            document.getElementById('modal-ui').classList.add('active');
+        }
+
+        function closeUiModal() { document.getElementById('modal-ui').classList.remove('active'); }
+
+        function promptReset() {
+            document.getElementById('modal-title').innerText = "Hapus Data?";
+            document.getElementById('modal-desc').innerText = "Seluruh data akan hilang permanen.";
+            document.getElementById('modal-buttons').innerHTML = `
+                <button class="btn-primary" onclick="localStorage.removeItem(DB_KEY); location.reload();">Ya, Hapus</button>
+                <button class="btn-secondary" onclick="closeUiModal()">Batal</button>
+            `;
+            document.getElementById('modal-ui').classList.add('active');
+        }
+
+        renderHistory();
+    </script>
+</body>
+</html>

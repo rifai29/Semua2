@@ -1,0 +1,388 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Alfamidi HR Premium</title>
+    <script src="https://cdn.sheetjs.com/xlsx-latest/package/dist/xlsx.full.min.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root { 
+            --brand-red: #c1121c; 
+            --brand-dark: #910d14; 
+            --off-white: #f8fafc; 
+            --text-main: #1e293b; 
+            --text-muted: #94a3b8; 
+            --border-light: #f1f5f9; 
+            --success: #059669; 
+            --blue: #0284c7;
+        }
+
+        * { box-sizing: border-box; font-family: 'Inter', sans-serif; margin: 0; padding: 0; }
+
+        body { 
+            background-color: var(--off-white); 
+            color: var(--text-main); 
+            -webkit-tap-highlight-color: transparent; 
+        }
+
+        /* Navbar */
+        .navbar { 
+            background-color: #ffffff; 
+            padding: 18px 20px; 
+            display: flex; 
+            align-items: center; 
+            position: sticky; 
+            top: 0; 
+            z-index: 1000; 
+            border-bottom: 1px solid var(--border-light); 
+        }
+
+        .menu-btn { 
+            background: none; border: none; font-size: 24px; 
+            cursor: pointer; margin-right: 15px; color: var(--brand-red); line-height: 1; 
+        }
+
+        .nav-title { 
+            font-weight: 700; font-size: 0.9rem; 
+            text-transform: uppercase; letter-spacing: 0.5px; 
+        }
+
+        /* Sidebar (Navigasi Kiri) */
+        .sidebar { 
+            position: fixed; left: -280px; top: 0; height: 100%; width: 280px; 
+            background: white; transition: 0.3s cubic-bezier(0.4, 0, 0.2, 1); 
+            z-index: 1100; padding: 40px 20px; box-shadow: 10px 0 30px rgba(0,0,0,0.05); 
+        }
+        .sidebar.active { left: 0; }
+        
+        .overlay { 
+            position: fixed; inset: 0; background: rgba(0,0,0,0.4); 
+            display: none; z-index: 1050; backdrop-filter: blur(2px); 
+        }
+        .overlay.active { display: block; }
+
+        /* Item Navigasi Bersih & Seragam */
+        .nav-item { 
+            display: flex; 
+            justify-content: space-between; 
+            align-items: center; 
+            padding: 18px 0; 
+            color: var(--text-main); 
+            text-decoration: none; /* Menghapus Garis Bawah */
+            font-weight: 600; 
+            font-size: 0.9rem; /* Ukuran font disamakan semua */
+            border-bottom: 1px solid var(--border-light); 
+            cursor: pointer; 
+        }
+        
+        /* Hilangkan warna merah khusus agar seragam */
+        .nav-item:hover {
+            color: var(--brand-red);
+        }
+
+        /* Container & Card UI */
+        .container { padding: 20px; max-width: 480px; margin: auto; }
+        .card { 
+            background: #ffffff; border-radius: 20px; padding: 24px; 
+            margin-bottom: 20px; border-top: 5px solid var(--brand-red); 
+            box-shadow: 0 4px 12px rgba(0,0,0,0.03); 
+        }
+
+        .scroll-container { max-height: 250px; overflow-y: auto; margin-top: 10px; }
+        .data-row { 
+            display: flex; justify-content: space-between; align-items: center;
+            padding: 14px 0; border-bottom: 1px solid var(--border-light); font-size: 0.85rem; 
+        }
+
+        /* Form Styling */
+        label { 
+            display: block; font-size: 0.7rem; font-weight: 700; 
+            color: var(--text-muted); margin-bottom: 8px; text-transform: uppercase; 
+        }
+        input { 
+            width: 100%; padding: 14px; border: 1.5px solid #e2e8f0; 
+            border-radius: 12px; margin-bottom: 20px; outline: none; 
+            font-size: 1rem; transition: 0.2s; 
+        }
+        input:focus { border-color: var(--brand-red); }
+        input:disabled { background: #f8fafc; color: var(--brand-red); font-weight: 700; }
+
+        /* Buttons */
+        .btn-primary { 
+            width: 100%; padding: 16px; border: none; border-radius: 14px; 
+            background: var(--brand-red); color: white; font-weight: 700; 
+            cursor: pointer; margin-bottom: 10px; font-size: 0.9rem; 
+        }
+        .btn-update { background: var(--blue); }
+        .btn-secondary { 
+            width: 100%; padding: 16px; border: none; border-radius: 14px; 
+            background: #e2e8f0; color: var(--text-main); font-weight: 700; 
+            cursor: pointer; font-size: 0.9rem; 
+        }
+
+        .action-btns { display: flex; gap: 8px; }
+        .mini-btn { 
+            padding: 6px 10px; border-radius: 8px; border: none; 
+            font-size: 0.7rem; font-weight: 700; cursor: pointer; color: white;
+        }
+        .bg-blue { background: var(--blue); }
+        .bg-red { background: var(--brand-red); }
+
+        /* Modal */
+        .modal-container { 
+            position: fixed; inset: 0; display: none; 
+            align-items: center; justify-content: center; z-index: 2000; 
+            padding: 20px; background: rgba(0,0,0,0.5); backdrop-filter: blur(4px); 
+        }
+        .modal-container.active { display: flex; }
+        .modal-content { 
+            background: white; width: 100%; max-width: 380px; 
+            border-radius: 24px; padding: 25px; 
+        }
+
+        #toast { 
+            position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%);
+            background: #1e293b; color: white; padding: 12px 25px; 
+            border-radius: 50px; font-size: 0.8rem; z-index: 3000;
+            opacity: 0; transition: 0.3s; pointer-events: none;
+        }
+        #toast.show { opacity: 1; }
+    </style>
+</head>
+<body>
+
+<div class="overlay" id="overlay" onclick="toggleMenu()"></div>
+
+<div class="sidebar" id="sidebar">
+    <h2 style="color: var(--brand-red); margin-bottom: 30px; font-size: 1.1rem;">MENU</h2>
+    
+    <a href="portal.html" class="nav-item">
+        <span>Beranda</span> <span></span>
+    </a>
+    
+    <div class="nav-item" onclick="unduh()">
+        <span>Unduh Data Excel</span> <span></span>
+    </div>
+    
+    <label class="nav-item">
+        <span>Impor Data Excel</span>
+        <input type="file" accept=".xlsx, .xls" style="display:none" onchange="impor(this)">
+        <span></span>
+    </label>
+    
+    <div class="nav-item" onclick="toggleMenu()" style="margin-top: 40px; color: var(--text-muted); border-bottom: none;">
+        <span>Tutup Menu</span>
+    </div>
+</div>
+
+<nav class="navbar">
+    <button class="menu-btn" onclick="toggleMenu()">☰</button>
+    <div class="nav-title">Tahap Percobaan</div>
+</nav>
+
+<div class="container">
+    <div class="card" onclick="bukaDaftar()" style="cursor: pointer; text-align: center; border-top-color: var(--success);">
+        <label>Total Karyawan Terdata</label>
+        <h1 id="totalCount" style="font-size: 2.5rem; color: var(--text-main);">0</h1>
+    </div>
+
+    <div class="card">
+        <label>NIK</label>
+        <input type="tel" id="nik" placeholder="Input NIK" oninput="handleNIK()">
+        
+        <label>Nama Karyawan</label>
+        <input type="text" id="nama" placeholder="Input Nama" oninput="handleNama()">
+        
+        <label>Estimasi Masa Kerja</label>
+        <input type="text" id="masa" readonly placeholder="Otomatis" style="background: #fffafa; border: none;">
+
+        <button class="btn-primary" id="btnSimpan" onclick="simpan()">SIMPAN DATA</button>
+        <button class="btn-secondary" id="btnBatal" onclick="reset()" style="display:none;">BATAL PERBARUI</button>
+    </div>
+
+    <div class="card">
+        <label>History 10 Terakhir</label>
+        <div id="tabelTerbaru" class="scroll-container"></div>
+    </div>
+</div>
+
+<div class="modal-container" id="modalList">
+    <div class="modal-content">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+            <h3 style="font-size: 1.1rem;">Database Karyawan</h3>
+            <button onclick="tutupDaftar()" style="border:none; background:none; font-size:24px; cursor:pointer;">&times;</button>
+        </div>
+        <div id="listDetail" class="scroll-container" style="max-height: 60vh;"></div>
+    </div>
+</div>
+
+<div id="toast">Pesan sistem</div>
+
+<script>
+    let db = JSON.parse(localStorage.getItem('hr_midi_v2')) || [];
+    let sedangEdit = false;
+
+    function toggleMenu() {
+        document.getElementById('sidebar').classList.toggle('active');
+        document.getElementById('overlay').classList.toggle('active');
+    }
+
+    function hitungMasa(nik) {
+        if (!nik || nik.length < 6) return "";
+        try {
+            const thn = parseInt("20" + nik.substring(2, 4));
+            const bln = parseInt(nik.substring(4, 6));
+            const skr = new Date(2026, 0); 
+            const msk = new Date(thn, bln - 1);
+            const selisih = (skr.getFullYear() - msk.getFullYear()) * 12 + (skr.getMonth() - msk.getMonth());
+            if (selisih < 0) return "Baru Bergabung";
+            return Math.floor(selisih/12) + " Thn " + (selisih%12) + " Bln";
+        } catch(e) { return ""; }
+    }
+
+    function handleNIK() {
+        const el = document.getElementById('nik');
+        el.value = el.value.replace(/[^0-9]/g, '');
+        document.getElementById('masa').value = hitungMasa(el.value);
+        if(!sedangEdit) {
+            const temu = db.find(i => i.nik === el.value);
+            if(temu) {
+                document.getElementById('nama').value = temu.nama;
+                showToast("Data ditemukan");
+            }
+        }
+    }
+
+    function handleNama() {
+        const el = document.getElementById('nama');
+        el.value = el.value.toUpperCase();
+    }
+
+    function simpan() {
+        const nik = document.getElementById('nik').value;
+        const nama = document.getElementById('nama').value;
+        const masa = hitungMasa(nik);
+        if(nik.length < 4 || !nama) return showToast("Lengkapi NIK & Nama!");
+        const idx = db.findIndex(i => i.nik === nik);
+        if(idx !== -1) {
+            db[idx] = { nik, nama, masa };
+            showToast("Data diperbarui");
+        } else {
+            db.unshift({ nik, nama, masa });
+            showToast("Data disimpan");
+        }
+        reset();
+        render();
+    }
+
+    function siapEdit(nik) {
+        const d = db.find(i => i.nik === nik);
+        const elNik = document.getElementById('nik');
+        elNik.value = d.nik;
+        elNik.disabled = true;
+        document.getElementById('nama').value = d.nama;
+        document.getElementById('masa').value = hitungMasa(d.nik);
+        const b = document.getElementById('btnSimpan');
+        b.innerText = "PERBARUI DATA";
+        b.classList.add("btn-update");
+        document.getElementById('btnBatal').style.display = "block";
+        sedangEdit = true;
+        tutupDaftar();
+    }
+
+    function reset() {
+        document.getElementById('nik').value = '';
+        document.getElementById('nik').disabled = false;
+        document.getElementById('nama').value = '';
+        document.getElementById('masa').value = '';
+        const b = document.getElementById('btnSimpan');
+        b.innerText = "SIMPAN DATA";
+        b.classList.remove("btn-update");
+        document.getElementById('btnBatal').style.display = "none";
+        sedangEdit = false;
+    }
+
+    function render() {
+        localStorage.setItem('hr_midi_v2', JSON.stringify(db));
+        document.getElementById('totalCount').innerText = db.length;
+        const listContainer = document.getElementById('tabelTerbaru');
+        listContainer.innerHTML = db.slice(0, 10).map(i => `
+            <div class="data-row">
+                <div>
+                    <div style="font-weight:700">${i.nik}</div>
+                    <div style="font-size:0.75rem; color:var(--text-muted)">${i.nama}</div>
+                </div>
+                <div class="action-btns">
+                    <button class="mini-btn bg-blue" onclick="siapEdit('${i.nik}')">EDIT</button>
+                    <button class="mini-btn bg-red" onclick="hapus('${i.nik}')">HAPUS</button>
+                </div>
+            </div>
+        `).join('');
+    }
+
+    function hapus(nik) {
+        if(confirm("Hapus data " + nik + "?")) {
+            db = db.filter(i => i.nik !== nik);
+            render();
+            if(document.getElementById('modalList').classList.contains('active')) bukaDaftar();
+        }
+    }
+
+    function bukaDaftar() {
+        const box = document.getElementById('listDetail');
+        box.innerHTML = db.map(i => `
+            <div class="data-row">
+                <div style="flex:1">
+                    <div style="font-weight:700">${i.nama}</div>
+                    <div style="font-size:0.7rem; color:var(--text-muted)">${i.nik} • ${i.masa}</div>
+                </div>
+                <div class="action-btns">
+                    <button class="mini-btn bg-blue" onclick="siapEdit('${i.nik}')">EDIT</button>
+                    <button class="mini-btn bg-red" onclick="hapus('${i.nik}')">HAPUS</button>
+                </div>
+            </div>
+        `).join('');
+        document.getElementById('modalList').classList.add('active');
+    }
+
+    function tutupDaftar() { document.getElementById('modalList').classList.remove('active'); }
+
+    function showToast(m) { 
+        const t = document.getElementById("toast"); 
+        t.innerText = m; t.classList.add("show"); 
+        setTimeout(() => t.classList.remove("show"), 2000); 
+    }
+
+    function unduh() {
+        const ws = XLSX.utils.json_to_sheet(db.map(i => ({"NIK":i.nik, "NAMA":i.nama, "MASA KERJA":i.masa})));
+        const wb = XLSX.utils.book_new();
+        XLSX.utils.book_append_sheet(wb, ws, "HR");
+        XLSX.writeFile(wb, "Data_Karyawan.xlsx");
+        toggleMenu();
+    }
+
+    function impor(input) {
+        const reader = new FileReader();
+        reader.onload = (e) => {
+            const data = new Uint8Array(e.target.result);
+            const wb = XLSX.read(data, {type:'array'});
+            const json = XLSX.utils.sheet_to_json(wb.Sheets[wb.SheetNames[0]]);
+            json.forEach(row => {
+                const nik = (row.NIK || row.nik || "").toString();
+                const nama = (row.NAMA || row.nama || row["NAMA KARYAWAN"] || "").toUpperCase();
+                if(nik) {
+                    const idx = db.findIndex(d => d.nik === nik);
+                    if(idx !== -1) db[idx].nama = nama;
+                    else db.push({nik, nama, masa: hitungMasa(nik)});
+                }
+            });
+            render(); showToast("Impor Berhasil"); toggleMenu();
+        };
+        reader.readAsArrayBuffer(input.files[0]);
+    }
+
+    render();
+</script>
+</body>
+</html>
