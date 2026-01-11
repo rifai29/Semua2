@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>LBI Jobdesk Clean</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+    <style>
+        :root { 
+            --brand-red: #c1121c; 
+            --off-white: #f8fafc; 
+            --text-main: #1e293b; 
+            --text-muted: #94a3b8; 
+            --border-light: #f1f5f9; 
+            --success: #059669; 
+        }
+
+        * { box-sizing: border-box; font-family: 'Inter', sans-serif; margin: 0; padding: 0; }
+        body { background-color: var(--off-white); color: var(--text-main); -webkit-tap-highlight-color: transparent; }
+
+        /* Navbar Tanpa Garis */
+        .navbar { background: #ffffff; padding: 18px 20px; display: flex; align-items: center; position: sticky; top: 0; z-index: 1000; }
+        .menu-btn { background: none; border: none; font-size: 24px; cursor: pointer; margin-right: 15px; color: var(--brand-red); }
+        .nav-title { font-weight: 700; font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.5px; }
+
+        /* SIDEBAR Tanpa Garis Pembatas */
+        .sidebar { position: fixed; left: -280px; top: 0; height: 100%; width: 280px; background: white; transition: 0.3s cubic-bezier(0.4, 0, 0.2, 1); z-index: 1100; padding: 40px 24px; box-shadow: 10px 0 30px rgba(0,0,0,0.05); }
+        .sidebar.active { left: 0; }
+        .overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.4); display: none; z-index: 1050; backdrop-filter: blur(2px); }
+        .overlay.active { display: block; }
+        
+        .sidebar-header { margin-bottom: 40px; }
+        .sidebar-header h2 { color: var(--brand-red); font-size: 1.4rem; font-weight: 800; }
+
+        .nav-item { display: flex; align-items: center; gap: 15px; padding: 12px 0; color: var(--text-main); text-decoration: none; font-weight: 600; font-size: 1rem; cursor: pointer; transition: 0.2s; border: none; /* Hilangkan Garis */ }
+        .nav-item:active { color: var(--brand-red); transform: translateX(5px); }
+        .nav-item span { font-size: 1.3rem; }
+
+        /* UI Content */
+        .container { padding: 15px; max-width: 480px; margin: auto; }
+        .card { background: #ffffff; border-radius: 25px; padding: 24px; margin-bottom: 20px; border-top: 6px solid var(--brand-red); box-shadow: 0 4px 15px rgba(0,0,0,0.03); }
+
+        /* Job List */
+        .job-item { display: flex; align-items: center; gap: 12px; padding: 15px 0; border-bottom: 1px solid var(--border-light); }
+        .job-item:last-child { border-bottom: none; }
+        .job-check { width: 22px; height: 22px; cursor: pointer; accent-color: var(--success); border-radius: 6px; }
+        .job-content { flex: 1; }
+        .job-name { font-size: 0.95rem; font-weight: 600; display: block; }
+        .job-meta { font-size: 0.75rem; color: var(--text-muted); font-weight: 700; }
+        
+        .done .job-name { text-decoration: line-through; color: var(--text-muted); }
+        .done .job-meta { color: var(--success); }
+
+        /* Form */
+        label { display: block; font-size: 0.7rem; font-weight: 700; color: var(--text-muted); margin-bottom: 8px; text-transform: uppercase; padding-left: 5px; }
+        input, textarea { width: 100%; padding: 14px; border: 1.5px solid #edf2f7; border-radius: 16px; margin-bottom: 12px; outline: none; font-size: 0.95rem; background: #fcfcfc; }
+        input:focus { border-color: var(--brand-red); background: #fff; }
+        
+        .btn { width: 100%; padding: 16px; border: none; border-radius: 18px; font-weight: 700; cursor: pointer; font-size: 0.9rem; transition: 0.3s; }
+        .btn-red { background: var(--brand-red); color: white; margin-bottom: 10px; }
+        .btn-success { background: var(--success); color: white; }
+        .btn:active { transform: scale(0.97); }
+
+        @media print { .no-print { display: none !important; } }
+    </style>
+</head>
+<body>
+
+    <nav class="navbar no-print">
+        <button class="menu-btn" onclick="toggleSidebar()">☰</button>
+        <div class="nav-title">Jobdesk</div>
+    </nav>
+
+    <div class="overlay" id="overlay" onclick="toggleSidebar()"></div>
+    <div class="sidebar" id="sidebar">
+        <div class="sidebar-header">
+            <h2>MENU</h2>
+            <p style="font-size: 0.75rem; color: var(--text-muted);"></p>
+        </div>
+        <a href="index.html" class="nav-item"><span></span> Beranda</a>
+        <div class="nav-item" onclick="exportExcel()"><span></span> Ekspor Laporan</div>
+        <div class="nav-item" onclick="window.print()"><span></span> Cetak Laporan</div>
+        
+        <div class="nav-item" onclick="clearAll()" style="color:var(--brand-red); margin-top:60px;"><span>️</span> Reset Laporan</div>
+    </div>
+
+    <div class="container">
+        <div class="card no-print">
+            <label>Pilih Tanggal</label>
+            <input type="date" id="jobDate">
+            <label>Tugas / Jobdesk</label>
+            <input type="text" id="jobTitle" placeholder="Misal: Input Data ">
+            <label>Catatan Hasil</label>
+            <textarea id="jobDesc" placeholder="Keterangan tambahan..."></textarea>
+            
+            <button class="btn btn-red" onclick="addJob()">SIMPAN TUGAS</button>
+            <button class="btn btn-success" onclick="exportExcel()">DOWNLOAD EXCEL</button>
+        </div>
+
+        <div class="card">
+            <h4 style="font-size: 0.9rem; margin-bottom: 20px; font-weight: 800; color: var(--brand-red);">TUGAS HARIAN</h4>
+            <div id="jobList">
+                </div>
+        </div>
+    </div>
+
+    <script>
+        document.getElementById('jobDate').valueAsDate = new Date();
+        let dbJobs = JSON.parse(localStorage.getItem('LBI_FINAL_STORAGE')) || [];
+
+        function toggleSidebar() {
+            document.getElementById('sidebar').classList.toggle('active');
+            document.getElementById('overlay').classList.toggle('active');
+        }
+
+        function save() {
+            localStorage.setItem('LBI_FINAL_STORAGE', JSON.stringify(dbJobs));
+            render();
+        }
+
+        function addJob() {
+            const tgl = document.getElementById('jobDate').value;
+            const title = document.getElementById('jobTitle').value;
+            const desc = document.getElementById('jobDesc').value;
+            const jam = new Date().toLocaleTimeString('id-ID', {hour:'2-digit', minute:'2-digit'});
+
+            if(!title) return;
+
+            dbJobs.unshift({
+                id: Date.now(),
+                tanggal: tgl,
+                jam: jam,
+                tugas: title,
+                ket: desc,
+                selesai: false
+            });
+
+            document.getElementById('jobTitle').value = "";
+            document.getElementById('jobDesc').value = "";
+            save();
+        }
+
+        function toggleCheck(id) {
+            dbJobs = dbJobs.map(j => {
+                if(j.id === id) j.selesai = !j.selesai;
+                return j;
+            });
+            save();
+        }
+
+        function deleteJob(id) {
+            if(confirm("Hapus tugas ini?")) {
+                dbJobs = dbJobs.filter(j => j.id !== id);
+                save();
+            }
+        }
+
+        function render() {
+            const list = document.getElementById('jobList');
+            list.innerHTML = dbJobs.length === 0 ? '<p style="text-align:center; padding:20px; color:grey; font-size:0.85rem;">Belum ada tugas tercatat.</p>' : '';
+            
+            dbJobs.forEach(j => {
+                const item = document.createElement('div');
+                item.className = `job-item ${j.selesai ? 'done' : ''}`;
+                item.innerHTML = `
+                    <input type="checkbox" class="job-check" ${j.selesai ? 'checked' : ''} onchange="toggleCheck(${j.id})">
+                    <div class="job-content">
+                        <span class="job-name">${j.tugas}</span>
+                        <span class="job-meta">${j.tanggal} • ${j.jam}</span>
+                        ${j.ket ? `<p style="font-size:0.8rem; color:var(--text-muted); margin-top:4px;">${j.ket}</p>` : ''}
+                    </div>
+                    <button onclick="deleteJob(${j.id})" style="border:none; background:none; color:#ff4d4d; padding:5px 10px; font-weight:bold;">✕</button>
+                `;
+                list.appendChild(item);
+            });
+        }
+
+        function exportExcel() {
+            if(dbJobs.length === 0) return alert("Data kosong!");
+            const ws = XLSX.utils.json_to_sheet(dbJobs);
+            const wb = XLSX.utils.book_new();
+            XLSX.utils.book_append_sheet(wb, ws, "Laporan Jobdesk");
+            XLSX.writeFile(wb, "Laporan_LBI.xlsx");
+        }
+
+        function clearAll() {
+            if(confirm("Peringatan: Ini akan menghapus seluruh daftar jobdesk permanen!")) {
+                dbJobs = [];
+                save();
+                toggleSidebar();
+            }
+        }
+
+        render();
+    </script>
+</body>
+</html>
