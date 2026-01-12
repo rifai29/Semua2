@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Generator Area Pak Fadholi v2.4.1</title>
+    <title>Generator Area Pak Fadholi v2.5.0</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
     <style>
         :root { 
@@ -77,7 +77,7 @@
             border-radius: 6px;
         }
 
-        table { border-collapse: collapse; width: 100%; min-width: 1100px; font-size: 11px; }
+        table { border-collapse: collapse; width: 100%; min-width: 1300px; font-size: 11px; }
         th { position: sticky; top: 0; background: #f8fafc; padding: 10px; color: var(--text-muted); border-bottom: 2px solid #edf2f7; z-index: 10; font-size: 10px; }
         td { padding: 8px 4px; border-bottom: 1px solid #f1f5f9; text-align: center; vertical-align: top; }
         
@@ -98,32 +98,18 @@
         .acv-indicator { display: block; font-size: 9px; font-weight: bold; color: #059669; margin-top: 3px; }
 
         #toast { position: fixed; bottom: 35px; left: 50%; transform: translateX(-50%); background: #1e293b; color: white; padding: 10px 20px; border-radius: 30px; font-size: 11px; font-weight: bold; opacity: 0; transition: 0.4s; z-index: 2000; }
-        
-        .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.7); display: none; justify-content: center; align-items: center; z-index: 1000; padding: 20px; }
-        .modal { background: #fff; width: 100%; max-width: 300px; border-radius: 12px; overflow: hidden; box-shadow: 0 10px 25px rgba(0,0,0,0.2); }
-        
-        /* SCROLL UNTUK POPUP */
-        .modal-body {
-            max-height: 100px; /* Tinggi dibatasi agar hanya muncul 3 baris */
-            overflow-y: auto;
-            padding: 15px;
-            font-size: 11px;
-            color: #334155;
-            line-height: 1.8;
-            border-bottom: 1px solid var(--border-color);
-        }
     </style>
 </head>
 <body>
 
 <div class="navbar">
-    GENERATOR
-    <span style="font-size: 10px; color: var(--text-muted); font-weight: 400;">v2.4.1</span>
+    GENERATOR FADHOLI
+    <span style="font-size: 10px; color: var(--text-muted); font-weight: 400;">v2.5.0</span>
 </div>
 
 <div class="main-content">
     <div class="card">
-        <textarea id="rawInput" placeholder="Tempel laporan mentah di sini..."></textarea>
+        <textarea id="rawInput" placeholder="Tempel laporan di sini (SALES, LUX, PONDS, dll)..."></textarea>
         <div class="menu-list">
             <button class="btn-action btn-process" onclick="importData()">PROSES DATA <span>❯</span></button>
             <button class="btn-action" onclick="copyWA()">SALIN LAPORAN <span>❯</span></button>
@@ -131,7 +117,7 @@
         </div>
     </div>
 
-    <div class="monitoring-title">Data Monitoring (Total 10 Toko)</div>
+    <div class="monitoring-title">Data Monitoring (10 Toko)</div>
     <div class="card" style="padding: 8px;">
         <div class="table-scroll" id="tableContent"></div>
     </div>
@@ -139,58 +125,59 @@
 
 <div id="toast">Berhasil Disalin</div>
 
-<div class="modal-overlay" id="updateModal">
-    <div class="modal">
-        <div style="padding: 15px; background: var(--midi-red); color: white; font-weight: 700; text-align: center; font-size: 13px;">UPDATE DASHBOARD</div>
-        <div class="modal-body">
-            1. Tampilan layar muat 6 Toko.<br>
-            2. Catatan Tambahan dihapus.<br>
-            3. Nama Toko Full Version.<br>
-            4. Perbaikan Target TTM.<br>
-            5. Optimalisasi Copy WhatsApp.
-        </div>
-        <button onclick="closeModal()" style="width: 100%; padding: 12px; border: none; background: #ffffff; color: var(--midi-red); font-weight: 700; cursor: pointer;">MENGERTI</button>
-    </div>
-</div>
-
 <script>
     const tokoList = [
-        { n: "ANBA", full: "ALUN-ALUN BLORA", s: "17599926", aq: "55", dk: "5", gr: "1", lf: "1", pp: "2", sn: "2", tm: "50" },
-        { n: "YNPW", full: "A. YANI PURWODADI", s: "21645276", aq: "33", dk: "4", gr: "1", lf: "1", pp: "5", sn: "4", tm: "50" },
-        { n: "GDGN", full: "GODONG GROBOGAN", s: "25401388", aq: "23", dk: "4", gr: "1", lf: "1", pp: "5", sn: "5", tm: "50" },
-        { n: "GRGB", full: "GUBUG GROBOGAN", s: "28622850", aq: "34", dk: "6", gr: "1", lf: "1", pp: "6", sn: "8", tm: "50" },
-        { n: "PLMN", full: "PLAMONGAN", s: "21523517", aq: "25", dk: "5", gr: "1", lf: "1", pp: "6", sn: "8", tm: "50" },
-        { n: "FMI",  full: "FATMAWATI", s: "25512077", aq: "30", dk: "4", gr: "1", lf: "2", pp: "5", sn: "7", tm: "50" },
-        { n: "WMI",  full: "WOLTER MONGINSIDI", s: "17526288", aq: "24", dk: "3", gr: "1", lf: "1", pp: "4", sn: "4", tm: "50" },
-        { n: "PDA",  full: "PADIRAYA", s: "21904787", aq: "35", dk: "4", gr: "1", lf: "2", pp: "6", sn: "3", tm: "50" },
-        { n: "KTL",  full: "KETILENG", s: "15492335", aq: "32", dk: "4", gr: "1", lf: "1", pp: "12", sn: "2", tm: "50" },
-        { n: "CRLW", full: "CEPU RONGGOLAWE", s: "15421747", aq: "55", dk: "6", gr: "1", lf: "1", pp: "12", sn: "3", tm: "25" }
+        { n: "ANBA", full: "ALUN-ALUN BLORA", s: "17599926" },
+        { n: "YNPW", full: "A. YANI PURWODADI", s: "21645276" },
+        { n: "GDGN", full: "GODONG GROBOGAN", s: "25401388" },
+        { n: "GRGB", full: "GUBUG GROBOGAN", s: "28622850" },
+        { n: "PLMN", full: "PLAMONGAN", s: "21523517" },
+        { n: "FMI",  full: "FATMAWATI", s: "25512077" },
+        { n: "WMI",  full: "WOLTER MONGINSIDI", s: "17526288" },
+        { n: "PDA",  full: "PADIRAYA", s: "21904787" },
+        { n: "KTL",  full: "KETILENG", s: "15492335" },
+        { n: "CRLW", full: "CEPU RONGGOLAWE", s: "15421747" }
     ];
 
-    const fields = ['s','aq','dk','gr','lf','pp','sn','f','tm','p','cs'];
-    const container = document.getElementById('tableContent');
-    
-    let html = `<table><thead><tr><th>TOKO</th><th>SALES</th><th>AQUA</th><th>D.KELINCI</th><th>GARNIER</th><th>LIFEBUOY</th><th>PEPSODENT</th><th>SUNLIGHT</th><th>FRUIT</th><th>TTM</th><th>PULSA</th><th>CASHBACK</th></tr></thead><tbody>`;
-    tokoList.forEach((tk, i) => {
-        html += `<tr><td class="toko-col"><span class="nama-full">${tk.full}</span><span class="nama-kode">${tk.n}</span></td>`;
-        fields.forEach(f => {
-            let tgtDisp = (f==='p')?'200k':(f==='tm'?(tk.n==='CRLW'?'25':'50'):(f==='f'?'Fruit':(f==='cs'?'Cash':(f==='s'?formatNumber(tk[f]):tk[f]))));
-            let tgtVal = (f==='p')?'200':(f==='tm'?(tk.n==='CRLW'?'25':'50'):(tk[f]||'0'));
-            html += `<td><span class="target-label">${tgtDisp}</span><input type="text" id="${f}_${i}" oninput="calc('${i}','${f}','${tgtVal}')"><span id="acv_${f}_${i}" class="acv-indicator">0%</span></td>`;
-        });
-        html += `</tr>`;
-    });
-    container.innerHTML = html + `</tbody></table>`;
+    // Field definition: s=sales, lx=lux, pd=ponds, rn=rinso, ss=sunsilk, ws=whiskas, wp=wipol, cf=cutfruit, tm=ttm, p=pulsa, cb=cashback
+    const fields = [
+        { id: 's',  name: 'SALES', target: (tk) => tk.s, label: (tk) => formatNumber(tk.s) },
+        { id: 'lx', name: 'LUX 800', target: () => 1 },
+        { id: 'pd', name: 'PONDS', target: () => 2 },
+        { id: 'rn', name: 'RINSO', target: () => 3 },
+        { id: 'ss', name: 'SUNSILK', target: () => 2 },
+        { id: 'ws', name: 'WHISKAS', target: () => 5 },
+        { id: 'wp', name: 'WIPOL', target: () => 4 },
+        { id: 'cf', name: 'FRUIT', target: () => 0, isString: true },
+        { id: 'tm', name: 'TTM', target: (tk) => tk.n === 'CRLW' ? 0 : 50 },
+        { id: 'p',  name: 'PULSA', target: () => 200, label: () => '200k' },
+        { id: 'cb', name: 'CASHBACK', target: () => 0, isString: true }
+    ];
 
-    window.onload = () => document.getElementById('updateModal').style.display = 'flex';
-    function closeModal() { document.getElementById('updateModal').style.display = 'none'; }
+    function initTable() {
+        let html = `<table><thead><tr><th>TOKO</th>`;
+        fields.forEach(f => html += `<th>${f.name}</th>`);
+        html += `</tr></thead><tbody>`;
+        
+        tokoList.forEach((tk, i) => {
+            html += `<tr><td class="toko-col"><span class="nama-full">${tk.full}</span><span class="nama-kode">${tk.n}</span></td>`;
+            fields.forEach(f => {
+                let tgtVal = f.target(tk);
+                let tgtDisp = f.label ? f.label(tk) : (tgtVal === 0 ? '-' : tgtVal);
+                html += `<td><span class="target-label">${tgtDisp}</span><input type="text" id="${f.id}_${i}" oninput="calc('${i}','${f.id}','${tgtVal}')"><span id="acv_${f.id}_${i}" class="acv-indicator">0%</span></td>`;
+            });
+            html += `</tr>`;
+        });
+        document.getElementById('tableContent').innerHTML = html + `</tbody></table>`;
+    }
+
     function formatNumber(n) { return n.toString().replace(/\B(?=(\d{3})+(?!\d))/g, "."); }
     function showToast(m) { const t = document.getElementById('toast'); t.innerText = m; t.style.opacity = '1'; setTimeout(() => t.style.opacity = '0', 2000); }
 
-    function calc(i, f, target) {
-        let val = document.getElementById(`${f}_${i}`).value.replace(/[^0-9]/g, '');
-        let a = parseInt(val) || 0, t = parseInt(target.replace(/[^0-9]/g, '')) || 0;
-        document.getElementById(`acv_${f}_${i}`).innerText = (t > 0) ? Math.round((a/t)*100) + "%" : "0%";
+    function calc(i, fid, target) {
+        let val = document.getElementById(`${fid}_${i}`).value.replace(/[^0-9]/g, '');
+        let a = parseInt(val) || 0, t = parseInt(target) || 0;
+        document.getElementById(`acv_${fid}_${i}`).innerText = (t > 0) ? Math.round((a/t)*100) + "%" : "0%";
     }
 
     function clearAll() {
@@ -202,44 +189,84 @@
     function importData() {
         const text = document.getElementById('rawInput').value.toUpperCase();
         if(!text) return;
+        
+        const keyMap = { 
+            "LUX":"lx", "POND":"pd", "RINSO":"rn", "SUNSILK":"ss", 
+            "WHISKAS":"ws", "WIPOL":"wp", "CUT FRUIT":"cf", "TTM":"tm", "PULSA":"p", "CASHBACK":"cb" 
+        };
+
         const lines = text.split('\n');
-        let mode = "s";
-        const keyMap = { "AQUA":"aq","KELINCI":"dk","GARNIER":"gr","LIFEBUOY":"lf","PEPSODENT":"pp","SUNLIGHT":"sn","FRUIT":"f","TTM":"tm","PULSA":"p","CASHBACK":"cs" };
+        let currentMode = "s";
+
         lines.forEach(line => {
-            for (let key in keyMap) if(line.includes(key)) mode = keyMap[key];
+            // Deteksi Mode berdasarkan header item
+            for (let key in keyMap) {
+                if(line.includes(key)) { currentMode = keyMap[key]; return; }
+            }
+
+            // Cari Toko dan ambil angka
             tokoList.forEach((tk, i) => {
                 if(line.includes(tk.n)) {
-                    let p = line.split('/').map(x => x.trim()).filter(x => x !== "");
-                    let actual = (mode === 'f' || mode === 'cs') ? (p[1] || "") : (p[2] || "");
-                    document.getElementById(`${mode}_${i}`).value = actual.replace(/[^0-9]/g, '');
-                    let tgtV = (mode==='p')?'200':(mode==='tm'?(tk.n==='CRLW'?'25':'50'):(tk[mode]||'0'));
-                    calc(i, mode, tgtV);
+                    let parts = line.split('/').map(p => p.trim());
+                    let val = "";
+                    if (currentMode === 's') {
+                        val = parts[2] || ""; // Ambil ACV untuk sales
+                    } else {
+                        val = parts[parts.length - 2] || parts[1] || ""; // Ambil nilai sebelum slash terakhir
+                    }
+                    
+                    let cleanVal = val.replace(/[^0-9]/g, '');
+                    document.getElementById(`${currentMode}_${i}`).value = cleanVal;
+                    calc(i, currentMode, fields.find(f => f.id === currentMode).target(tk));
                 }
             });
         });
-        showToast("DIPROSES");
+        showToast("DATA DIPROSES");
     }
 
     function copyWA() {
-        const d = new Date(), jam = d.getHours();
-        let shift = (jam >= 21) ? "SIANG" : "PAGI";
+        const d = new Date();
         const bln = ["JANUARI","FEBRUARI","MARET","APRIL","MEI","JUNI","JULI","AGUSTUS","SEPTEMBER","OKTOBER","NOVEMBER","DESEMBER"];
-        let res = `*LAPORAN ITEM FOKUS ${shift} AREA PAK FADHOLI*\n${d.getDate()} ${bln[d.getMonth()]} ${d.getFullYear()}\n\n`;
-        const items = [{n:"SALES", id:"s", h:"TOKO: target//act//acv\n"},{n:"AQUA 600ml/1.5l", id:"aq", l:"*🍶", r:"🍶*"},{n:"Dua Kelinci", id:"dk", l:"*🥜", r:"🐰*"},{n:"Garnier FF", id:"gr", l:"*🚿", r:"💆🏻‍♀️*"},{n:"Lifebuoy", id:"lf", l:"*🚿", r:"🛁*"},{n:"Pepsodent", id:"pp", l:"*🪥", r:"🚰*"},{n:"Sunlight", id:"sn", l:"*🍽️", r:"🧼*"},{n:"CUT FRUIT", id:"f", l:"🍍🍉 *", r:"* 🍉🍍", s:true},{n:"TTM", id:"tm", l:"🔥🔥 *", r:"* 🔥🔥"},{n:"PULSA", id:"p", l:"🏴‍☠️🏴‍☠️ *", r:"* 🏴‍☠️🏴‍☠️", p:true},{n:"CASHBACK", id:"cs", l:"✨✨ *", r:"* ✨✨", s:true}];
-        items.forEach(it => {
-            res += (it.id === 's') ? it.h : `\n${it.l}${it.n}${it.r}\n\n`;
+        let res = `*LAPORAN ITEM FOKUS PAGI AREA PAK FADHOLI*\n${d.getDate()} ${bln[d.getMonth()]} ${d.getFullYear()}\n\n`;
+        
+        const reportItems = [
+            { id: 's',  head: "TOKO: target//act//acv\n", emoji: "" },
+            { id: 'lx', head: "🫧Lux 800ml🫧", emoji: "" },
+            { id: 'pd', head: "👩🏻Pond's 100/90ml👩🏻", emoji: "" },
+            { id: 'rn', head: "👚Rinso 700g👚", emoji: "" },
+            { id: 'ss', head: "💆🏻‍♀️Sunsilk 160ml🧖🏻‍♀️", emoji: "" },
+            { id: 'ws', head: "🐱whiskas 80g🐱", emoji: "" },
+            { id: 'wp', head: "🪣Wipol 750ml🪣", emoji: "" },
+            { id: 'cf', head: "🍍🍉 *CUT FRUIT* 🍉🍍", emoji: "", isS: true },
+            { id: 'tm', head: "🔥🔥 *TTM* 🔥🔥", emoji: "" },
+            { id: 'p',  head: "🏴‍☠️🏴‍☠️ *PULSA* 🏴‍☠️🏴‍☠️", emoji: "", isP: true },
+            { id: 'cb', head: "✨✨ *CASHBACK* ✨✨", emoji: "", isS: true }
+        ];
+
+        reportItems.forEach(item => {
+            res += (item.id === 's') ? item.head : `\n${item.head}\n\n`;
             tokoList.forEach((tk, i) => {
-                let actRaw = document.getElementById(`${it.id}_${i}`).value || "";
-                let actNum = parseInt(actRaw.replace(/[^0-9]/g, '')) || 0;
-                let acv = document.getElementById(`acv_${it.id}_${i}`).innerText;
-                if(it.id === 's') { res += `${i+1}.${tk.n}//${formatNumber(tk.s)}/${actNum === 0 ? '' : formatNumber(actNum)}/${actNum === 0 ? '' : acv}\n`; } 
-                else if(it.s) { res += `${i+1}.${tk.n} /${actNum === 0 ? '' : formatNumber(actNum)}\n`; } 
-                else { let tgtDisp = it.p ? "200k" : (it.id==='tm'?(tk.n==="CRLW"?"25":"50"):tk[it.id]); let actDisp = it.p ? (actNum === 0 ? '0k' : actNum + 'k') : actNum; res += `${i+1}.${tk.n}/${tgtDisp}/${actNum === 0 ? '' : actDisp}/${actNum === 0 ? '' : acv}\n`; }
+                let act = document.getElementById(`${item.id}_${i}`).value || "";
+                let acv = document.getElementById(`acv_${item.id}_${i}`).innerText;
+                let tgt = fields.find(f => f.id === item.id).target(tk);
+
+                if(item.id === 's') {
+                    res += `${i+1}.${tk.n} //${formatNumber(tk.s)}/${act ? formatNumber(act) : ''}/${act ? acv : ''}\n`;
+                } else if(item.isS) {
+                    res += `${i+1}.${tk.n} /${act}/\n`;
+                } else if(item.isP) {
+                    res += `${i+1}.${tk.n}/${tgt}k/${act ? act + 'k' : ''}/${act ? acv : ''}/\n`;
+                } else {
+                    res += `${i+1}.${tk.n}/${tgt}/${act}/${act ? acv : ''}/\n`;
+                }
             });
         });
+
         const el = document.createElement('textarea'); el.value = res; document.body.appendChild(el); el.select(); document.execCommand('copy'); document.body.removeChild(el);
         showToast("LAPORAN DISALIN");
     }
+
+    initTable();
 </script>
 </body>
 </html>
