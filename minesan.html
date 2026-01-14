@@ -12,7 +12,7 @@
     
     <style>
         :root {
-            --bg-body: #ffffff; /* Putih Bersih */
+            --bg-body: #ffffff;
             --white: #ffffff;
             --gray-light: #f1f1f1;
             --gray-medium: #888888;
@@ -44,39 +44,18 @@
         }
         .overlay.active { display: block; }
 
-        /* --- NAVBAR (DIPERBAIKI AGAR PRESISI & SEJAJAR) --- */
+        /* --- NAVBAR --- */
         .navbar { 
-            background: var(--white); 
-            height: 60px; /* Tinggi tetap agar stabil */
-            padding: 0 15px; 
-            display: flex; 
-            align-items: center; /* Menyeimbangkan vertikal */
-            border-bottom: 1px solid var(--border-color); 
+            background: var(--white); height: 60px; padding: 0 15px; 
+            display: flex; align-items: center; border-bottom: 1px solid var(--border-color); 
             position: sticky; top: 0; z-index: 1000; 
         }
         .btn-hamburger { 
-            background: none; 
-            border: none; 
-            font-size: 24px; /* Ukuran ikon pas */
-            cursor: pointer; 
-            color: var(--gray-dark); 
-            margin-right: 12px; 
-            display: flex; 
-            align-items: center; 
-            justify-content: center;
-            width: 40px; 
-            height: 40px;
-            padding: 0;
+            background: none; border: none; font-size: 24px; cursor: pointer; 
+            color: var(--gray-dark); margin-right: 12px; display: flex; 
+            align-items: center; justify-content: center; width: 40px; height: 40px;
         }
-        .nav-title { 
-            font-weight: 700; 
-            font-size: 15px; 
-            text-transform: uppercase; 
-            letter-spacing: 0.5px; 
-            display: flex;
-            align-items: center;
-            height: 100%;
-        }
+        .nav-title { font-weight: 700; font-size: 15px; text-transform: uppercase; letter-spacing: 0.5px; }
 
         /* --- CONTAINER --- */
         .container { padding: 15px; max-width: 500px; margin: auto; }
@@ -92,7 +71,7 @@
             border-radius: 8px; background: #fff; font-size: 14px; outline: none; margin-bottom: 12px; color: var(--gray-dark);
         }
         
-        .btn-save { 
+        .btn-save-main { 
             width: 100%; background: var(--gray-dark); color: var(--white); padding: 16px; 
             border: none; border-radius: 8px; font-weight: 700; cursor: pointer; text-transform: uppercase;
         }
@@ -105,13 +84,31 @@
         .btn-del { color: var(--gray-medium); background: none; border: none; cursor: pointer; font-size: 14px; }
 
         /* --- ACTION BUTTONS --- */
-        .excel-box { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 15px; }
+        .grid-box { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 10px; }
         .btn-action { 
             padding: 12px; border: 1px solid var(--border-color); border-radius: 8px; 
             background: var(--white); font-weight: 700; font-size: 11px; cursor: pointer; 
             display: flex; align-items: center; justify-content: center; gap: 8px; color: var(--gray-dark); text-transform: uppercase;
         }
-        .btn-history { width: 100%; margin-top: 10px; background: #f8f9fa; border: 1px solid var(--border-color); color: var(--gray-dark); }
+        .btn-save-manual { background: #f8f9fa; border: 1px solid var(--gray-dark); }
+
+        /* NOTIFIKASI KECIL (TOAST) */
+        .swal2-toast-custom {
+            width: auto !important;
+            padding: 8px 15px !important;
+            font-size: 11px !important;
+            border-radius: 50px !important;
+            margin-bottom: 20px !important;
+        }
+
+        /* INPUT BULAN TERSEMBUNYI */
+        #hidden-month-input {
+            position: absolute;
+            opacity: 0;
+            pointer-events: none;
+            width: 0;
+            height: 0;
+        }
     </style>
 </head>
 <body>
@@ -119,10 +116,10 @@
     <div class="overlay" id="overlay" onclick="toggleSidebar()"></div>
     
     <div class="sidebar" id="sidebar">
-    <a href="index.html" class="sidebar-item">BERANDA</a>
-    
-    <a href="index.html" class="sidebar-item logout">LOGOUT</a>
-</div>
+        <a href="index.html" class="sidebar-item">BERANDA</a>
+        <a href="index.html" class="sidebar-item logout">LOGOUT</a>
+    </div>
+
     <nav class="navbar">
         <button class="btn-hamburger" onclick="toggleSidebar()">
             <i class="fa-solid fa-bars"></i>
@@ -144,7 +141,7 @@
             </select>
             <label>Nominal (Rp)</label>
             <input type="number" id="in-minus" placeholder="0" inputmode="numeric">
-            <button class="btn-save" onclick="tambahData()">SIMPAN</button>
+            <button class="btn-save-main" onclick="tambahData()">TAMBAHKAN</button>
         </div>
 
         <div class="card">
@@ -167,19 +164,34 @@
                 </table>
             </div>
 
-            <div class="excel-box">
+            <div class="grid-box">
                 <button class="btn-action" onclick="exportExcel()">EKSPOR</button>
                 <button class="btn-action" onclick="triggerImport()">IMPOR</button>
             </div>
-            <button class="btn-action btn-history" onclick="popHistory()">HISTORY BULAN</button>
+
+            <div class="grid-box">
+                <button class="btn-action btn-save-manual" onclick="simpanKeBrowser()">SIMPAN</button>
+                <button class="btn-action" onclick="triggerMonthPicker()">HISTORY</button>
+            </div>
         </div>
     </div>
 
+    <input type="month" id="hidden-month-input" onchange="handleMonthChange(this)">
     <input type="file" id="fileInput" style="display:none" accept=".xlsx, .xls">
 
     <script>
-        // --- SEMUA LOGIKA ASLI TETAP DI SINI (TIDAK DIPANGKAS) ---
-        let dataMaster = [];
+        // Config Notifikasi Super Kecil
+        const Toast = Swal.mixin({
+            toast: true,
+            position: 'bottom',
+            showConfirmButton: false,
+            timer: 1500,
+            background: '#000',
+            color: '#fff',
+            customClass: { popup: 'swal2-toast-custom' }
+        });
+
+        let dataMaster = JSON.parse(localStorage.getItem('databaseMinesan')) || [];
         let currentFilter = ""; 
         document.getElementById('in-tgl').valueAsDate = new Date();
 
@@ -190,6 +202,7 @@
 
         const getCurrentMonth = () => new Date().toISOString().slice(0, 7);
 
+        // LOGIKA PENTING: Menggabungkan nominal jika Tanggal & Keperluan sama
         function gabungkanData(dataArray) {
             const map = new Map();
             dataArray.forEach(item => {
@@ -237,54 +250,70 @@
             const ket = document.getElementById('in-ket').value;
             const nom = document.getElementById('in-minus').value;
             if (!nom || nom <= 0) {
-                Swal.fire({ icon: 'info', title: 'Isi Nominal', confirmButtonColor: '#333' });
+                Toast.fire({ title: 'Isi Nominal!' });
                 return;
             }
             dataMaster.push({ Tanggal: tgl, Keterangan: ket, Nominal: nom });
             dataMaster = gabungkanData(dataMaster);
+            
+            // Simpan otomatis ke local storage
+            localStorage.setItem('databaseMinesan', JSON.stringify(dataMaster));
+            
             loadCurrentMonth();
             document.getElementById('in-minus').value = "";
-            Swal.fire({ icon: 'success', title: 'Berhasil', showConfirmButton: false, timer: 1000 });
+            Toast.fire({ title: 'Ditambahkan' });
         }
 
-        function hapusData(index) {
-            Swal.fire({ title: 'Hapus?', icon: 'warning', showCancelButton: true, confirmButtonColor: '#333', cancelButtonColor: '#888' }).then((res) => {
-                if (res.isConfirmed) {
-                    dataMaster.splice(index, 1);
-                    updateTabel(currentFilter);
-                }
-            });
+        function simpanKeBrowser() {
+            localStorage.setItem('databaseMinesan', JSON.stringify(dataMaster));
+            Toast.fire({ title: 'Tersimpan' });
         }
 
-        function popHistory() {
-            Swal.fire({
-                title: 'Bulan',
-                html: `<input type="month" id="hist-month" class="swal2-input">`,
-                showCancelButton: true,
-                confirmButtonColor: '#333',
-                preConfirm: () => document.getElementById('hist-month').value
-            }).then((res) => {
-                if (res.isConfirmed && res.value) {
-                    document.getElementById('title-list').innerText = "History: " + res.value;
-                    document.getElementById('reset-link').style.display = "block";
-                    updateTabel(res.value);
-                }
-            });
+        // FUNGSI HISTORY LANGSUNG BUKA PICKER HP
+        function triggerMonthPicker() {
+            document.getElementById('hidden-month-input').showPicker();
+        }
+
+        function handleMonthChange(input) {
+            if (input.value) {
+                document.getElementById('title-list').innerText = "History: " + input.value;
+                document.getElementById('reset-link').style.display = "block";
+                updateTabel(input.value);
+            }
         }
 
         function loadCurrentMonth() {
             document.getElementById('title-list').innerText = "Laporan Bulan Ini";
             document.getElementById('reset-link').style.display = "none";
+            document.getElementById('hidden-month-input').value = "";
             updateTabel();
         }
 
+        function hapusData(index) {
+            Swal.fire({
+                title: 'Hapus?',
+                showCancelButton: true,
+                confirmButtonColor: '#000',
+                confirmButtonText: 'Ya',
+                cancelButtonText: 'Tidak'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    dataMaster.splice(index, 1);
+                    localStorage.setItem('databaseMinesan', JSON.stringify(dataMaster));
+                    updateTabel(currentFilter);
+                    Toast.fire({ title: 'Terhapus' });
+                }
+            });
+        }
+
         function exportExcel() {
+            if(dataMaster.length === 0) return Toast.fire({ title: 'Data Kosong' });
             urutkanData();
-            const fileName = `Laporan_${getCurrentMonth()}.xlsx`;
-            const ws = XLSX.utils.json_to_sheet(dataMaster.length > 0 ? dataMaster : [{ Tanggal: "", Keterangan: "", Nominal: 0 }]);
+            const ws = XLSX.utils.json_to_sheet(dataMaster);
             const wb = XLSX.utils.book_new();
             XLSX.utils.book_append_sheet(wb, ws, "Data");
-            XLSX.writeFile(wb, fileName);
+            XLSX.writeFile(wb, `Laporan_${getCurrentMonth()}.xlsx`);
+            Toast.fire({ title: 'Ekspor Berhasil' });
         }
 
         function triggerImport() { document.getElementById('fileInput').click(); }
@@ -296,16 +325,17 @@
                     const workbook = XLSX.read(new Uint8Array(event.target.result), { type: 'array' });
                     const sheetData = XLSX.utils.sheet_to_json(workbook.Sheets[workbook.SheetNames[0]]);
                     dataMaster = gabungkanData([...dataMaster, ...sheetData]);
-                    urutkanData();
+                    localStorage.setItem('databaseMinesan', JSON.stringify(dataMaster));
                     loadCurrentMonth();
-                    Swal.fire({ icon: 'success', title: 'Impor & Gabung Berhasil' });
+                    Toast.fire({ title: 'Impor Berhasil' });
                 } catch (err) {
-                    Swal.fire({ icon: 'error', title: 'Gagal membaca file' });
+                    Toast.fire({ title: 'Gagal Impor' });
                 }
             };
             reader.readAsArrayBuffer(e.target.files[0]);
         };
 
+        // Jalankan saat pertama kali buka
         loadCurrentMonth();
     </script>
 </body>
