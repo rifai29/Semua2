@@ -6,11 +6,76 @@
     <title>MONITORING FADHOLI - V20.1 INSTANT RESET</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
     <style>
-        :root { --bg: #f8fafc; --panel: #ffffff; --primary: #1e293b; --green: #10b981; --border: #e2e8f0; }
+        :root { --bg: #f8fafc; --panel: #ffffff; --primary: #1e293b; --green: #10b981; --border: #e2e8f0; --danger: #ef4444; }
         * { box-sizing: border-box; font-family: 'Inter', sans-serif; }
-        body { background: var(--bg); color: var(--primary); margin: 0; padding: 0; }
-        .header { background: var(--panel); padding: 20px; text-align: center; border-bottom: 1px solid var(--border); }
-        .header h1 { margin: 0; font-size: 15px; font-weight: 800; text-transform: uppercase; color: #334155; }
+        body { background: var(--bg); color: var(--primary); margin: 0; padding: 0; overflow-x: hidden; }
+
+        /* --- Navbar & Hamburger (Kiri) --- */
+        .navbar { 
+            display: flex; 
+            align-items: center; 
+            background: var(--panel); 
+            padding: 15px 20px; 
+            border-bottom: 1px solid var(--border);
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+            gap: 15px;
+        }
+        .hamburger {
+            cursor: pointer;
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+            border: none;
+            background: none;
+            padding: 5px;
+        }
+        .hamburger span {
+            display: block;
+            width: 20px;
+            height: 3px;
+            background: var(--primary);
+            border-radius: 2px;
+        }
+        .navbar h1 { margin: 0; font-size: 15px; font-weight: 800; text-transform: uppercase; color: #334155; }
+
+        /* Sidebar Menu (Kiri) */
+        .nav-side {
+            position: fixed;
+            top: 0;
+            left: -260px;
+            width: 260px;
+            height: 100%;
+            background: var(--panel);
+            transition: 0.3s;
+            padding: 20px 0;
+            z-index: 1001;
+            box-shadow: 5px 0 15px rgba(0,0,0,0.1);
+        }
+        .nav-side.active { left: 0; }
+        .nav-side a {
+            display: block;
+            color: var(--primary);
+            text-decoration: none;
+            padding: 15px 25px;
+            font-weight: 700;
+            font-size: 13px;
+            text-transform: uppercase;
+        }
+        .nav-side a:hover { background: #f1f5f9; }
+        .nav-side a.logout { color: var(--danger); border-top: 1px solid var(--border); margin-top: 10px; }
+
+        .overlay {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.5);
+            display: none;
+            z-index: 998;
+        }
+        .overlay.active { display: block; }
+
+        /* --- Sisa Style Asli --- */
         .container { max-width: 1400px; margin: 0 auto; padding: 15px; }
         .card { background: var(--panel); border-radius: 12px; padding: 20px; border: 1px solid var(--border); box-shadow: 0 4px 6px rgba(0,0,0,0.05); margin-bottom: 20px; }
         textarea { width: 100%; height: 110px; border: 1.5px solid #cbd5e1; border-radius: 10px; padding: 12px; font-size: 13px; outline: none; background: #fcfcfc; margin-bottom: 12px; }
@@ -33,7 +98,20 @@
 </head>
 <body>
 
-<div class="header"><h1 id="mainTitle">Monitoring Fadholi</h1></div>
+<header class="navbar">
+    <button class="hamburger" onclick="toggleMenu()">
+        <span></span>
+        <span></span>
+        <span></span>
+    </button>
+    <h1 id="mainTitle">Monitoring Fadholi</h1>
+</header>
+
+<div class="overlay" id="overlay" onclick="toggleMenu()"></div>
+<nav class="nav-side" id="navSide">
+    <a href="index.html">Beranda</a>
+    <a href="index.html" class="logout">Logout</a>
+</nav>
 
 <div class="container">
     <div class="card">
@@ -64,6 +142,12 @@
 <div id="toast">Notif</div>
 
 <script>
+    function toggleMenu() {
+        document.getElementById('navSide').classList.toggle('active');
+        document.getElementById('overlay').classList.toggle('active');
+    }
+
+    // --- LOGIKA ASLI ANDA (TIDAK ADA YANG DIHAPUS) ---
     const stores = [
         { id: "ANBA", t: { s: 17599926, lx: 1, pd: 2, rn: 4, ss: 1, ws: 6, wp: 5, cf: 0, tm: 50, p: 200, cb: 0 } },
         { id: "YNPW", t: { s: 21645276, lx: 1, pd: 2, rn: 4, ss: 2, ws: 4, wp: 5, cf: 0, tm: 50, p: 200, cb: 0 } },
