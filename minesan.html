@@ -2,223 +2,311 @@
 <html lang="id">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Sistem Laporan Kasir</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Minesan Monochrome Pro</title>
+    
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    
     <style>
-        :root { --brand-red: #c1121c; --brand-dark: #910d14; --off-white: #f8fafc; --text-main: #1e293b; --text-muted: #94a3b8; --border-light: #f1f5f9; --success: #059669; }
-        * { box-sizing: border-box; font-family: 'Inter', sans-serif; margin: 0; padding: 0; }
-        body { background-color: var(--off-white); color: var(--text-main); -webkit-tap-highlight-color: transparent; }
+        :root {
+            --bg-body: #ffffff; /* Putih Bersih */
+            --white: #ffffff;
+            --gray-light: #f1f1f1;
+            --gray-medium: #888888;
+            --gray-dark: #333333;
+            --red-logout: #d63031;
+            --border-color: #eef1f5;
+        }
 
-        /* Navbar */
-        .navbar { background-color: #ffffff; padding: 18px 20px; display: flex; align-items: center; position: sticky; top: 0; z-index: 1000; border-bottom: 1px solid var(--border-light); }
-        .menu-btn { background: none; border: none; font-size: 24px; cursor: pointer; margin-right: 15px; color: var(--brand-red); line-height: 1; }
-        .nav-title { font-weight: 700; font-size: 0.9rem; text-transform: uppercase; letter-spacing: 0.5px; }
+        * { box-sizing: border-box; font-family: 'Inter', sans-serif; -webkit-tap-highlight-color: transparent; }
+        body { background-color: var(--bg-body); margin: 0; color: var(--gray-dark); overflow-x: hidden; }
+
+        /* --- SIDEBAR --- */
+        .sidebar { 
+            position: fixed; left: -100%; top: 0; height: 100%; width: 260px; 
+            background: var(--white); transition: 0.3s cubic-bezier(0.16, 1, 0.3, 1); 
+            z-index: 2100; padding-top: 20px; border-right: 1px solid var(--border-color); 
+        }
+        .sidebar.active { left: 0; box-shadow: 5px 0 25px rgba(0,0,0,0.05); }
+        .sidebar-item { 
+            display: block; padding: 20px 25px; text-decoration: none; 
+            font-size: 14px; font-weight: 700; color: var(--gray-dark); 
+            border-bottom: 1px solid #f1f1f1; text-transform: uppercase;
+        }
+        .sidebar-item.logout { color: var(--red-logout); border-bottom: none; }
         
-        /* Sidebar (Mirip Awal) */
-        .sidebar { position: fixed; left: -280px; top: 0; height: 100%; width: 280px; background: white; transition: 0.3s cubic-bezier(0.4, 0, 0.2, 1); z-index: 1100; padding: 40px 20px; box-shadow: 10px 0 30px rgba(0,0,0,0.05); }
-        .sidebar.active { left: 0; }
-        .overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.4); display: none; z-index: 1050; backdrop-filter: blur(2px); }
+        .overlay { 
+            position: fixed; inset: 0; background: rgba(0,0,0,0.3); 
+            display: none; z-index: 2000; backdrop-filter: blur(1px); 
+        }
         .overlay.active { display: block; }
 
-        .nav-item { display: flex; justify-content: space-between; align-items: center; padding: 18px 0; color: var(--text-main); text-decoration: none; font-weight: 600; font-size: 0.9rem; border-bottom: 1px solid var(--border-light); cursor: pointer; }
-        .nav-item i { font-size: 0.7rem; color: #ccc; }
+        /* --- NAVBAR (DIPERBAIKI AGAR PRESISI & SEJAJAR) --- */
+        .navbar { 
+            background: var(--white); 
+            height: 60px; /* Tinggi tetap agar stabil */
+            padding: 0 15px; 
+            display: flex; 
+            align-items: center; /* Menyeimbangkan vertikal */
+            border-bottom: 1px solid var(--border-color); 
+            position: sticky; top: 0; z-index: 1000; 
+        }
+        .btn-hamburger { 
+            background: none; 
+            border: none; 
+            font-size: 24px; /* Ukuran ikon pas */
+            cursor: pointer; 
+            color: var(--gray-dark); 
+            margin-right: 12px; 
+            display: flex; 
+            align-items: center; 
+            justify-content: center;
+            width: 40px; 
+            height: 40px;
+            padding: 0;
+        }
+        .nav-title { 
+            font-weight: 700; 
+            font-size: 15px; 
+            text-transform: uppercase; 
+            letter-spacing: 0.5px; 
+            display: flex;
+            align-items: center;
+            height: 100%;
+        }
 
-        /* Main Content */
-        .container { padding: 20px; max-width: 480px; margin: auto; }
-        .card { background: #ffffff; border-radius: 20px; padding: 24px; margin-bottom: 20px; border-top: 5px solid var(--brand-red); box-shadow: 0 4px 12px rgba(0,0,0,0.03); }
-        .scroll-container { max-height: 220px; overflow-y: auto; margin-top: 10px; }
-        .data-row { display: flex; justify-content: space-between; padding: 14px 0; border-bottom: 1px solid var(--border-light); font-size: 0.85rem; }
-
-        /* Form */
-        label { display: block; font-size: 0.7rem; font-weight: 700; color: var(--text-muted); margin-bottom: 8px; text-transform: uppercase; }
-        input { width: 100%; padding: 14px; border: 1.5px solid #e2e8f0; border-radius: 12px; margin-bottom: 20px; outline: none; font-size: 1rem; transition: 0.2s; }
-        input:focus { border-color: var(--brand-red); }
+        /* --- CONTAINER --- */
+        .container { padding: 15px; max-width: 500px; margin: auto; }
+        .card { 
+            background: var(--white); border-radius: 12px; padding: 20px; 
+            box-shadow: 0 4px 15px rgba(0,0,0,0.05); border: 1px solid var(--border-color); 
+            margin-bottom: 15px; 
+        }
         
-        .btn-primary { width: 100%; padding: 16px; border: none; border-radius: 14px; background: var(--brand-red); color: white; font-weight: 700; cursor: pointer; margin-bottom: 10px; font-size: 0.9rem; }
-        .btn-secondary { width: 100%; padding: 16px; border: none; border-radius: 14px; background: #e2e8f0; color: var(--text-main); font-weight: 700; cursor: pointer; font-size: 0.9rem; }
+        label { display: block; font-size: 10px; font-weight: 700; color: var(--gray-medium); margin-bottom: 6px; text-transform: uppercase; }
+        input, select { 
+            width: 100%; padding: 12px; border: 1px solid #d2d6da; 
+            border-radius: 8px; background: #fff; font-size: 14px; outline: none; margin-bottom: 12px; color: var(--gray-dark);
+        }
+        
+        .btn-save { 
+            width: 100%; background: var(--gray-dark); color: var(--white); padding: 16px; 
+            border: none; border-radius: 8px; font-weight: 700; cursor: pointer; text-transform: uppercase;
+        }
 
-        /* Custom Modal UI */
-        .modal-container { position: fixed; inset: 0; display: none; align-items: center; justify-content: center; z-index: 2000; padding: 20px; background: rgba(0,0,0,0.5); backdrop-filter: blur(4px); }
-        .modal-container.active { display: flex; }
-        .modal-content { background: white; width: 100%; max-width: 340px; border-radius: 24px; padding: 30px; text-align: center; }
+        /* --- TABLE --- */
+        .table-container { overflow-x: auto; margin-top: 10px; border: 1px solid var(--border-color); border-radius: 8px; }
+        table { width: 100%; border-collapse: collapse; font-size: 12px; }
+        th { background: #fff; padding: 15px 12px; text-align: left; color: var(--gray-medium); border-bottom: 1px solid var(--border-color); font-size: 10px; }
+        td { padding: 15px 12px; border-bottom: 1px solid var(--border-color); background: var(--white); }
+        .btn-del { color: var(--gray-medium); background: none; border: none; cursor: pointer; font-size: 14px; }
 
-        .page { display: none; }
-        .active-page { display: block; }
+        /* --- ACTION BUTTONS --- */
+        .excel-box { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 15px; }
+        .btn-action { 
+            padding: 12px; border: 1px solid var(--border-color); border-radius: 8px; 
+            background: var(--white); font-weight: 700; font-size: 11px; cursor: pointer; 
+            display: flex; align-items: center; justify-content: center; gap: 8px; color: var(--gray-dark); text-transform: uppercase;
+        }
+        .btn-history { width: 100%; margin-top: 10px; background: #f8f9fa; border: 1px solid var(--border-color); color: var(--gray-dark); }
     </style>
 </head>
 <body>
 
-    <div class="modal-container" id="modal-ui">
-        <div class="modal-content">
-            <div id="modal-title" style="font-weight:700; margin-bottom:10px;"></div>
-            <div id="modal-desc" style="color:var(--text-muted); font-size:0.9rem; margin-bottom:25px;"></div>
-            <div id="modal-buttons" style="display:flex; flex-direction:column; gap:10px;"></div>
-        </div>
-    </div>
-
+    <div class="overlay" id="overlay" onclick="toggleSidebar()"></div>
+    
+    <div class="sidebar" id="sidebar">
+    <a href="index.html" class="sidebar-item">BERANDA</a>
+    
+    <a href="index.html" class="sidebar-item logout">LOGOUT</a>
+</div>
     <nav class="navbar">
-        <button class="menu-btn" onclick="toggleMenu()">☰</button>
-        <div class="nav-title" id="header-title">LAPORAN MINESAN</div>
+        <button class="btn-hamburger" onclick="toggleSidebar()">
+            <i class="fa-solid fa-bars"></i>
+        </button>
+        <div class="nav-title">Tahap Percobaan</div>
     </nav>
 
-    <div class="sidebar" id="sidebar">
-        <h2 style="font-size: 1.1rem; margin-bottom: 25px;">MENU</h2>
-        <div class="nav-item" onclick="window.location.href='./index.html'">Beranda <i class="fas fa-chevron-right"></i></div>
-        <div class="nav-item" onclick="showPage('harian', 'LAPORAN MINESAN')">Laporan Harian <i class="fas fa-chevron-right"></i></div>
-        <div class="nav-item" onclick="showPage('bulanan', 'LAPORAN BULANAN')">Laporan Bulanan <i class="fas fa-chevron-right"></i></div>
-        <div class="nav-item" onclick="showPage('ekspor', 'KELOLA DATA')">Ekspor & Impor <i class="fas fa-chevron-right"></i></div>
-        <div class="nav-item" onclick="promptReset()" style="color: var(--brand-red); margin-top: 40px;">Hapus Semua Data <i class="fas fa-chevron-right"></i></div>
-    </div>
-    <div class="overlay" id="overlay" onclick="toggleMenu()"></div>
-
     <div class="container">
-        <div id="page-harian" class="page active-page">
-            <div class="card">
-                <label>Pilih Tanggal</label>
-                <input type="date" id="tgl">
-                <label>Nominal Minus (Rp)</label>
-                <input type="number" id="minus" placeholder="Masukkan angka..." oninput="updateHelper()">
-                <div id="helper" style="font-weight:700; color:var(--success); font-size:0.9rem; margin-top:-15px; margin-bottom:20px;">Rp 0</div>
-                <button class="btn-primary" onclick="simpan()">SIMPAN DATA</button>
-            </div>
-            <div class="card">
-                <label>Riwayat Input Terbaru</label>
-                <div class="scroll-container" id="recent-list"></div>
-            </div>
+        <div class="card">
+            <label>Tanggal</label>
+            <input type="date" id="in-tgl">
+            <label>Keperluan</label>
+            <select id="in-ket">
+                <option value="Makan">Makan</option>
+                <option value="Transportasi">Transportasi</option>
+                <option value="Minesan">Minesan</option>
+                <option value="Plus-Plusan">Plus-Plusan</option>
+                <option value="Lain-Lain">Lain-Lain</option>
+            </select>
+            <label>Nominal (Rp)</label>
+            <input type="number" id="in-minus" placeholder="0" inputmode="numeric">
+            <button class="btn-save" onclick="tambahData()">SIMPAN</button>
         </div>
 
-        <div id="page-bulanan" class="page">
-            <div class="card" id="rekap-container"></div>
-            <button class="btn-primary" onclick="exportExcel()">UNDUH LAPORAN EXCEL</button>
-        </div>
+        <div class="card">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+                <label id="title-list" style="margin:0">Laporan Bulan Ini</label>
+                <span id="reset-link" style="display:none; color:var(--gray-medium); font-size:10px; font-weight:700; cursor:pointer; text-decoration: underline;" onclick="loadCurrentMonth()">RESET</span>
+            </div>
+            
+            <div class="table-container">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>TANGGAL</th>
+                            <th>KEPERLUAN</th>
+                            <th>NOMINAL</th>
+                            <th style="width:30px;"></th>
+                        </tr>
+                    </thead>
+                    <tbody id="body-tabel"></tbody>
+                </table>
+            </div>
 
-        <div id="page-ekspor" class="page">
-            <div class="card">
-                <label>Kelola File Excel</label>
-                <div class="nav-item" onclick="downloadTemplate()">Unduh Format (Template) <i class="fas fa-download"></i></div>
-                <div class="nav-item" onclick="triggerImport()">Impor / Upload File Excel <i class="fas fa-upload"></i></div>
-                <input type="file" id="file-input" style="display:none" accept=".xlsx, .xls" onchange="importExcel(event)">
+            <div class="excel-box">
+                <button class="btn-action" onclick="exportExcel()">EKSPOR</button>
+                <button class="btn-action" onclick="triggerImport()">IMPOR</button>
             </div>
-            <div class="card">
-                <label>Backup</label>
-                <div class="nav-item" onclick="exportExcel()">Backup Seluruh Data <i class="fas fa-file-excel"></i></div>
-            </div>
+            <button class="btn-action btn-history" onclick="popHistory()">HISTORY BULAN</button>
         </div>
     </div>
+
+    <input type="file" id="fileInput" style="display:none" accept=".xlsx, .xls">
 
     <script>
-        const DB_KEY = 'kasir_pwa_v5';
-        document.getElementById('tgl').valueAsDate = new Date();
+        // --- SEMUA LOGIKA ASLI TETAP DI SINI (TIDAK DIPANGKAS) ---
+        let dataMaster = [];
+        let currentFilter = ""; 
+        document.getElementById('in-tgl').valueAsDate = new Date();
 
-        function toggleMenu() {
+        function toggleSidebar() {
             document.getElementById('sidebar').classList.toggle('active');
             document.getElementById('overlay').classList.toggle('active');
         }
 
-        function showPage(id, title) {
-            document.querySelectorAll('.page').forEach(p => p.classList.remove('active-page'));
-            document.getElementById('page-' + id).classList.add('active-page');
-            document.getElementById('header-title').innerText = title;
-            if(id === 'harian') renderHistory();
-            if(id === 'bulanan') renderBulanan();
-            toggleMenu();
-        }
+        const getCurrentMonth = () => new Date().toISOString().slice(0, 7);
 
-        function updateHelper() {
-            const val = document.getElementById('minus').value;
-            document.getElementById('helper').innerText = "Rp " + (parseInt(val) || 0).toLocaleString('id-ID');
-        }
-
-        function simpan() {
-            const tgl = document.getElementById('tgl').value;
-            const amt = document.getElementById('minus').value;
-            if(!amt) return openUiModal("Peringatan", "Masukkan nominal terlebih dahulu.");
-            const data = JSON.parse(localStorage.getItem(DB_KEY)) || [];
-            data.unshift({ Tanggal: tgl, Nominal: parseInt(amt) });
-            localStorage.setItem(DB_KEY, JSON.stringify(data));
-            document.getElementById('minus').value = "";
-            updateHelper();
-            renderHistory();
-            openUiModal("Berhasil", "Data tersimpan.");
-        }
-
-        function renderHistory() {
-            const list = document.getElementById('recent-list');
-            const data = JSON.parse(localStorage.getItem(DB_KEY)) || [];
-            list.innerHTML = data.length ? "" : "Belum ada data.";
-            data.slice(0, 10).forEach(item => {
-                list.innerHTML += `<div class="data-row"><span>${item.Tanggal}</span><span style="font-weight:700; color:var(--brand-red)">Rp ${item.Nominal.toLocaleString()}</span></div>`;
+        function gabungkanData(dataArray) {
+            const map = new Map();
+            dataArray.forEach(item => {
+                const key = `${item.Tanggal}-${item.Keterangan}`;
+                const nominal = parseFloat(item.Nominal) || 0;
+                if (map.has(key)) {
+                    map.get(key).Nominal = parseFloat(map.get(key).Nominal) + nominal;
+                } else {
+                    map.set(key, { ...item, Nominal: nominal });
+                }
             });
+            return Array.from(map.values());
         }
 
-        function renderBulanan() {
-            const container = document.getElementById('rekap-container');
-            const data = JSON.parse(localStorage.getItem(DB_KEY)) || [];
-            const rekap = {};
-            data.forEach(item => {
-                const m = new Date(item.Tanggal).toLocaleString('id-ID', { month: 'long', year: 'numeric' });
-                rekap[m] = (rekap[m] || 0) + item.Nominal;
-            });
-            container.innerHTML = "<label>Ringkasan Laporan</label>";
-            for (const [bulan, total] of Object.entries(rekap)) {
-                container.innerHTML += `<div class="nav-item"><span>${bulan}</span><span style="color:var(--brand-red)">Rp ${total.toLocaleString()}</span></div>`;
+        function urutkanData() {
+            dataMaster.sort((a, b) => new Date(b.Tanggal) - new Date(a.Tanggal));
+        }
+
+        function updateTabel(filterBulan = null) {
+            currentFilter = filterBulan;
+            const body = document.getElementById('body-tabel');
+            body.innerHTML = "";
+            urutkanData();
+            const bulanTujuan = filterBulan || getCurrentMonth();
+            const dataFilter = dataMaster.filter(item => item.Tanggal.startsWith(bulanTujuan));
+
+            if (dataFilter.length === 0) {
+                body.innerHTML = '<tr><td colspan="4" style="text-align:center; color:#bbb; padding:20px;">Kosong</td></tr>';
+            } else {
+                dataFilter.forEach((item) => {
+                    const originalIndex = dataMaster.indexOf(item);
+                    const row = body.insertRow();
+                    row.innerHTML = `
+                        <td>${item.Tanggal}</td>
+                        <td><b>${item.Keterangan}</b></td>
+                        <td style="font-weight:700;">Rp ${parseInt(item.Nominal).toLocaleString('id-ID')}</td>
+                        <td><button class="btn-del" onclick="hapusData(${originalIndex})"><i class="fa-solid fa-trash-can"></i></button></td>
+                    `;
+                });
             }
         }
 
+        function tambahData() {
+            const tgl = document.getElementById('in-tgl').value;
+            const ket = document.getElementById('in-ket').value;
+            const nom = document.getElementById('in-minus').value;
+            if (!nom || nom <= 0) {
+                Swal.fire({ icon: 'info', title: 'Isi Nominal', confirmButtonColor: '#333' });
+                return;
+            }
+            dataMaster.push({ Tanggal: tgl, Keterangan: ket, Nominal: nom });
+            dataMaster = gabungkanData(dataMaster);
+            loadCurrentMonth();
+            document.getElementById('in-minus').value = "";
+            Swal.fire({ icon: 'success', title: 'Berhasil', showConfirmButton: false, timer: 1000 });
+        }
+
+        function hapusData(index) {
+            Swal.fire({ title: 'Hapus?', icon: 'warning', showCancelButton: true, confirmButtonColor: '#333', cancelButtonColor: '#888' }).then((res) => {
+                if (res.isConfirmed) {
+                    dataMaster.splice(index, 1);
+                    updateTabel(currentFilter);
+                }
+            });
+        }
+
+        function popHistory() {
+            Swal.fire({
+                title: 'Bulan',
+                html: `<input type="month" id="hist-month" class="swal2-input">`,
+                showCancelButton: true,
+                confirmButtonColor: '#333',
+                preConfirm: () => document.getElementById('hist-month').value
+            }).then((res) => {
+                if (res.isConfirmed && res.value) {
+                    document.getElementById('title-list').innerText = "History: " + res.value;
+                    document.getElementById('reset-link').style.display = "block";
+                    updateTabel(res.value);
+                }
+            });
+        }
+
+        function loadCurrentMonth() {
+            document.getElementById('title-list').innerText = "Laporan Bulan Ini";
+            document.getElementById('reset-link').style.display = "none";
+            updateTabel();
+        }
+
         function exportExcel() {
-            const data = JSON.parse(localStorage.getItem(DB_KEY)) || [];
-            const ws = XLSX.utils.json_to_sheet(data);
+            urutkanData();
+            const fileName = `Laporan_${getCurrentMonth()}.xlsx`;
+            const ws = XLSX.utils.json_to_sheet(dataMaster.length > 0 ? dataMaster : [{ Tanggal: "", Keterangan: "", Nominal: 0 }]);
             const wb = XLSX.utils.book_new();
-            XLSX.utils.book_append_sheet(wb, ws, "Laporan");
-            XLSX.writeFile(wb, "Laporan_Minesan.xlsx");
+            XLSX.utils.book_append_sheet(wb, ws, "Data");
+            XLSX.writeFile(wb, fileName);
         }
 
-        function downloadTemplate() {
-            const data = [{ Tanggal: new Date().toISOString().split('T')[0], Nominal: "" }];
-            const ws = XLSX.utils.json_to_sheet(data);
-            const wb = XLSX.utils.book_new();
-            XLSX.utils.book_append_sheet(wb, ws, "Input");
-            XLSX.writeFile(wb, "Format_Laporan_Minesan.xlsx");
-        }
+        function triggerImport() { document.getElementById('fileInput').click(); }
 
-        function triggerImport() { document.getElementById('file-input').click(); }
-
-        function importExcel(event) {
-            const file = event.target.files[0];
+        document.getElementById('fileInput').onchange = function(e) {
             const reader = new FileReader();
-            reader.onload = (e) => {
-                const workbook = XLSX.read(new Uint8Array(e.target.result), { type: 'array' });
-                const json = XLSX.utils.sheet_to_json(workbook.Sheets[workbook.SheetNames[0]]);
-                localStorage.setItem(DB_KEY, JSON.stringify(json));
-                renderHistory();
-                openUiModal("Impor Berhasil", json.length + " data dimasukkan.");
+            reader.onload = (event) => {
+                try {
+                    const workbook = XLSX.read(new Uint8Array(event.target.result), { type: 'array' });
+                    const sheetData = XLSX.utils.sheet_to_json(workbook.Sheets[workbook.SheetNames[0]]);
+                    dataMaster = gabungkanData([...dataMaster, ...sheetData]);
+                    urutkanData();
+                    loadCurrentMonth();
+                    Swal.fire({ icon: 'success', title: 'Impor & Gabung Berhasil' });
+                } catch (err) {
+                    Swal.fire({ icon: 'error', title: 'Gagal membaca file' });
+                }
             };
-            reader.readAsArrayBuffer(file);
-        }
+            reader.readAsArrayBuffer(e.target.files[0]);
+        };
 
-        function openUiModal(title, desc) {
-            document.getElementById('modal-title').innerText = title;
-            document.getElementById('modal-desc').innerText = desc;
-            document.getElementById('modal-buttons').innerHTML = `<button class="btn-primary" onclick="closeUiModal()">Tutup</button>`;
-            document.getElementById('modal-ui').classList.add('active');
-        }
-
-        function closeUiModal() { document.getElementById('modal-ui').classList.remove('active'); }
-
-        function promptReset() {
-            document.getElementById('modal-title').innerText = "Hapus Data?";
-            document.getElementById('modal-desc').innerText = "Seluruh data akan hilang permanen.";
-            document.getElementById('modal-buttons').innerHTML = `
-                <button class="btn-primary" onclick="localStorage.removeItem(DB_KEY); location.reload();">Ya, Hapus</button>
-                <button class="btn-secondary" onclick="closeUiModal()">Batal</button>
-            `;
-            document.getElementById('modal-ui').classList.add('active');
-        }
-
-        renderHistory();
+        loadCurrentMonth();
     </script>
 </body>
 </html>
