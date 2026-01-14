@@ -3,270 +3,198 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Generator Area Pak Fadholi v2.5.0</title>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+    <title>MONITORING FADHOLI - V20.1 INSTANT RESET</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
     <style>
-        :root { 
-            --midi-red: #c1121c; 
-            --off-white: #f8fafc; 
-            --pure-white: #ffffff;
-            --border-color: #e2e8f0;
-            --text-dark: #1e293b;
-            --text-muted: #64748b;
-        }
-
+        :root { --bg: #f8fafc; --panel: #ffffff; --primary: #1e293b; --green: #10b981; --border: #e2e8f0; }
         * { box-sizing: border-box; font-family: 'Inter', sans-serif; }
-        body { background: var(--off-white); margin: 0; padding: 0; color: var(--text-dark); }
-        
-        .navbar { 
-            background: var(--pure-white); 
-            padding: 14px 20px; 
-            font-weight: 700; 
-            font-size: 13px;
-            border-bottom: 1px solid var(--border-color);
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            position: sticky;
-            top: 0;
-            z-index: 100;
-        }
-
-        .main-content { padding: 12px; max-width: 600px; margin: 0 auto; }
-
-        .card { 
-            background: var(--pure-white); 
-            border-radius: 8px; 
-            border-top: 4px solid var(--midi-red);
-            box-shadow: 0 1px 3px rgba(0,0,0,0.05);
-            margin-bottom: 16px;
-            overflow: hidden;
-        }
-
-        textarea { 
-            width: 100%; border: none; padding: 15px; font-size: 12px;
-            outline: none; resize: none; background: transparent;
-            min-height: 80px;
-        }
-
-        .menu-list { display: flex; flex-direction: column; }
-        .btn-action {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            width: 100%;
-            background: none;
-            border: none;
-            padding: 12px 16px;
-            font-weight: 700;
-            font-size: 11px;
-            color: var(--text-dark);
-            cursor: pointer;
-            border-top: 1px solid var(--border-color);
-            text-transform: uppercase;
-        }
-        .btn-process { color: var(--midi-red); }
-
-        .monitoring-title { font-size: 10px; font-weight: 700; color: var(--text-muted); margin-bottom: 8px; text-transform: uppercase; }
-
-        .table-scroll { 
-            height: 400px; 
-            overflow: auto; 
-            background: var(--pure-white);
-            border: 1px solid var(--border-color);
-            border-radius: 6px;
-        }
-
-        table { border-collapse: collapse; width: 100%; min-width: 1300px; font-size: 11px; }
-        th { position: sticky; top: 0; background: #f8fafc; padding: 10px; color: var(--text-muted); border-bottom: 2px solid #edf2f7; z-index: 10; font-size: 10px; }
-        td { padding: 8px 4px; border-bottom: 1px solid #f1f5f9; text-align: center; vertical-align: top; }
-        
-        .toko-col { 
-            position: sticky; left: 0; background: #fffdf2; 
-            z-index: 5; border-right: 2px solid #ffcc00; 
-            min-width: 115px; text-align: left; vertical-align: middle;
-        }
-        .nama-full { display: block; font-size: 8px; color: #666; text-transform: uppercase; line-height: 1.1; }
-        .nama-kode { display: block; font-size: 11px; color: var(--midi-red); font-weight: 700; }
-
-        .target-label { display: block; font-size: 9px; color: #94a3b8; font-weight: bold; margin-bottom: 4px; }
-        
-        input[type="text"] { 
-            width: 80px; padding: 6px; border: 1px solid #cbd5e1; 
-            border-radius: 6px; text-align: center; font-size: 11px; font-weight: bold;
-        }
-        .acv-indicator { display: block; font-size: 9px; font-weight: bold; color: #059669; margin-top: 3px; }
-
-        #toast { position: fixed; bottom: 35px; left: 50%; transform: translateX(-50%); background: #1e293b; color: white; padding: 10px 20px; border-radius: 30px; font-size: 11px; font-weight: bold; opacity: 0; transition: 0.4s; z-index: 2000; }
+        body { background: var(--bg); color: var(--primary); margin: 0; padding: 0; }
+        .header { background: var(--panel); padding: 20px; text-align: center; border-bottom: 1px solid var(--border); }
+        .header h1 { margin: 0; font-size: 15px; font-weight: 800; text-transform: uppercase; color: #334155; }
+        .container { max-width: 1400px; margin: 0 auto; padding: 15px; }
+        .card { background: var(--panel); border-radius: 12px; padding: 20px; border: 1px solid var(--border); box-shadow: 0 4px 6px rgba(0,0,0,0.05); margin-bottom: 20px; }
+        textarea { width: 100%; height: 110px; border: 1.5px solid #cbd5e1; border-radius: 10px; padding: 12px; font-size: 13px; outline: none; background: #fcfcfc; margin-bottom: 12px; }
+        .btn-box { display: grid; grid-template-columns: 2fr 1fr 1fr; gap: 10px; }
+        .btn { border: none; border-radius: 8px; padding: 14px; font-weight: 700; font-size: 11px; text-transform: uppercase; cursor: pointer; color: white; }
+        .btn-go { background: #334155; } .btn-wa { background: #64748b; } .btn-cl { background: #e2e8f0; color: #475569; }
+        .table-res { background: var(--panel); border-radius: 12px; border: 1px solid var(--border); overflow: hidden; box-shadow: 0 10px 15px rgba(0,0,0,0.05); margin-bottom: 30px; }
+        .scroll { overflow-x: auto; }
+        table { width: 100%; border-collapse: collapse; min-width: 1300px; }
+        th { background: #f8fafc; padding: 15px 10px; font-size: 10px; font-weight: 700; color: #94a3b8; text-transform: uppercase; border-bottom: 2px solid var(--border); }
+        .stk { position: sticky; left: 0; background: white; z-index: 10; border-right: 2px solid var(--border); width: 140px; text-align: left !important; padding-left: 15px; }
+        td { padding: 12px 5px; border-bottom: 1px solid #f1f5f9; text-align: center; }
+        .st-nm { font-weight: 800; font-size: 12px; }
+        .stack { display: flex; flex-direction: column; align-items: center; gap: 2px; }
+        .t-val { font-size: 9px; color: #94a3b8; font-weight: 600; }
+        .in-val { width: 85%; border: none; background: transparent; text-align: center; font-size: 14px; font-weight: 800; color: #1e293b; outline: none; }
+        .p-val { font-size: 11px; font-weight: 800; color: var(--green); height: 16px; }
+        #toast { position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%); background: #1e293b; color: white; padding: 12px 25px; border-radius: 50px; font-size: 12px; opacity: 0; transition: 0.4s; z-index: 999; }
     </style>
 </head>
 <body>
 
-<div class="navbar">
-    GENERATOR FADHOLI
-    <span style="font-size: 10px; color: var(--text-muted); font-weight: 400;">v2.5.0</span>
-</div>
+<div class="header"><h1 id="mainTitle">Monitoring Fadholi</h1></div>
 
-<div class="main-content">
+<div class="container">
     <div class="card">
-        <textarea id="rawInput" placeholder="Tempel laporan di sini (SALES, LUX, PONDS, dll)..."></textarea>
-        <div class="menu-list">
-            <button class="btn-action btn-process" onclick="importData()">PROSES DATA <span>❯</span></button>
-            <button class="btn-action" onclick="copyWA()">SALIN LAPORAN <span>❯</span></button>
-            <button class="btn-action" style="color: #94a3b8;" onclick="clearAll()">HAPUS <span>❯</span></button>
+        <textarea id="txtIn" placeholder="Tempel Laporan di sini..."></textarea>
+        <div class="btn-box">
+            <button class="btn btn-go" onclick="proData()">PROSES</button>
+            <button class="btn btn-wa" onclick="waCopy()">SALIN</button>
+            <button class="btn btn-cl" onclick="resTab()">Hapus</button>
         </div>
     </div>
 
-    <div class="monitoring-title">Data Monitoring (10 Toko)</div>
-    <div class="card" style="padding: 8px;">
-        <div class="table-scroll" id="tableContent"></div>
+    <div class="table-res">
+        <div class="scroll">
+            <table>
+                <thead>
+                    <tr>
+                        <th class="stk">Nama Toko</th>
+                        <th>Sales</th><th>Lux 800ml</th><th>Pond's 100/90ml</th><th>Rinso 700g</th><th>Sunsilk 160ml</th>
+                        <th>Whiskas 80g</th><th>Wipol 750ml</th><th>Cut Fruit</th><th>TTM</th><th>Pulsa</th><th>Casback</th>
+                    </tr>
+                </thead>
+                <tbody id="outBody"></tbody>
+            </table>
+        </div>
     </div>
 </div>
 
-<div id="toast">Berhasil Disalin</div>
+<div id="toast">Notif</div>
 
 <script>
-    const tokoList = [
-        { n: "ANBA", full: "ALUN-ALUN BLORA", s: "17599926" },
-        { n: "YNPW", full: "A. YANI PURWODADI", s: "21645276" },
-        { n: "GDGN", full: "GODONG GROBOGAN", s: "25401388" },
-        { n: "GRGB", full: "GUBUG GROBOGAN", s: "28622850" },
-        { n: "PLMN", full: "PLAMONGAN", s: "21523517" },
-        { n: "FMI",  full: "FATMAWATI", s: "25512077" },
-        { n: "WMI",  full: "WOLTER MONGINSIDI", s: "17526288" },
-        { n: "PDA",  full: "PADIRAYA", s: "21904787" },
-        { n: "KTL",  full: "KETILENG", s: "15492335" },
-        { n: "CRLW", full: "CEPU RONGGOLAWE", s: "15421747" }
+    const stores = [
+        { id: "ANBA", t: { s: 17599926, lx: 1, pd: 2, rn: 4, ss: 1, ws: 6, wp: 5, cf: 0, tm: 50, p: 200, cb: 0 } },
+        { id: "YNPW", t: { s: 21645276, lx: 1, pd: 2, rn: 4, ss: 2, ws: 4, wp: 5, cf: 0, tm: 50, p: 200, cb: 0 } },
+        { id: "GDGN", t: { s: 25401388, lx: 1, pd: 2, rn: 2, ss: 2, ws: 4, wp: 2, cf: 0, tm: 50, p: 200, cb: 0 } },
+        { id: "GRGB", t: { s: 28622850, lx: 1, pd: 3, rn: 4, ss: 2, ws: 3, wp: 4, cf: 0, tm: 50, p: 200, cb: 0 } },
+        { id: "PLMN", t: { s: 21523517, lx: 3, pd: 2, rn: 3, ss: 2, ws: 8, wp: 7, cf: 0, tm: 50, p: 200, cb: 0 } },
+        { id: "FMI",  t: { s: 25512077, lx: 2, pd: 2, rn: 4, ss: 2, ws: 6, wp: 6, cf: 0, tm: 50, p: 200, cb: 0 } },
+        { id: "WMI",  t: { s: 17526288, lx: 2, pd: 2, rn: 2, ss: 1, ws: 3, wp: 5, cf: 0, tm: 50, p: 200, cb: 0 } },
+        { id: "PDA",  t: { s: 21904787, lx: 2, pd: 2, rn: 2, ss: 1, ws: 5, wp: 4, cf: 0, tm: 50, p: 200, cb: 0 } },
+        { id: "KTL",  t: { s: 15492335, lx: 1, pd: 1, rn: 1, ss: 1, ws: 3, wp: 3, cf: 0, tm: 50, p: 200, cb: 0 } },
+        { id: "CRLW", t: { s: 15421747, lx: 1, pd: 5, rn: 3, ss: 2, ws: 3, wp: 4, cf: 0, tm: 50, p: 200, cb: 0 } }
     ];
 
-    // Field definition: s=sales, lx=lux, pd=ponds, rn=rinso, ss=sunsilk, ws=whiskas, wp=wipol, cf=cutfruit, tm=ttm, p=pulsa, cb=cashback
-    const fields = [
-        { id: 's',  name: 'SALES', target: (tk) => tk.s, label: (tk) => formatNumber(tk.s) },
-        { id: 'lx', name: 'LUX 800', target: () => 1 },
-        { id: 'pd', name: 'PONDS', target: () => 2 },
-        { id: 'rn', name: 'RINSO', target: () => 3 },
-        { id: 'ss', name: 'SUNSILK', target: () => 2 },
-        { id: 'ws', name: 'WHISKAS', target: () => 5 },
-        { id: 'wp', name: 'WIPOL', target: () => 4 },
-        { id: 'cf', name: 'FRUIT', target: () => 0, isString: true },
-        { id: 'tm', name: 'TTM', target: (tk) => tk.n === 'CRLW' ? 0 : 50 },
-        { id: 'p',  name: 'PULSA', target: () => 200, label: () => '200k' },
-        { id: 'cb', name: 'CASHBACK', target: () => 0, isString: true }
+    const cols = [
+        { id: "s", k: "SALES", h: true, head: "SALES" },
+        { id: "lx", k: "LUX", h: true, head: "*🫧Lux 800ml🫧*" },
+        { id: "pd", k: "POND", h: true, head: "*👩🏻Pond's 100/90ml👩🏻*" },
+        { id: "rn", k: "RINSO", h: true, head: "*👚Rinso 700g👚*" },
+        { id: "ss", k: "SUNSILK", h: true, head: "*💆🏻‍♀️Sunsilk 160ml🧖🏻‍♀️*" },
+        { id: "ws", k: "WHISKAS", h: true, head: "*🐱whiskas 80g🐱*" },
+        { id: "wp", k: "WIPOL", h: true, head: "*🪣Wipol 750ml🪣*" },
+        { id: "cf", k: "CUT FRUIT", h: false, head: "🍍🍉 *CUT FRUIT* 🍉🍍" },
+        { id: "tm", k: "TTM", h: true, head: "🔥🔥 *TTM* 🔥🔥" },
+        { id: "p", k: "PULSA", h: true, head: "🏴‍☠️🏴‍☠️ *PULSA* 🏴‍☠️🏴‍☠️" },
+        { id: "cb", k: "CASHBACK", h: false, head: "✨✨ *CASHBACK* ✨✨" }
     ];
 
-    function initTable() {
-        let html = `<table><thead><tr><th>TOKO</th>`;
-        fields.forEach(f => html += `<th>${f.name}</th>`);
-        html += `</tr></thead><tbody>`;
-        
-        tokoList.forEach((tk, i) => {
-            html += `<tr><td class="toko-col"><span class="nama-full">${tk.full}</span><span class="nama-kode">${tk.n}</span></td>`;
-            fields.forEach(f => {
-                let tgtVal = f.target(tk);
-                let tgtDisp = f.label ? f.label(tk) : (tgtVal === 0 ? '-' : tgtVal);
-                html += `<td><span class="target-label">${tgtDisp}</span><input type="text" id="${f.id}_${i}" oninput="calc('${i}','${f.id}','${tgtVal}')"><span id="acv_${f.id}_${i}" class="acv-indicator">0%</span></td>`;
-            });
-            html += `</tr>`;
-        });
-        document.getElementById('tableContent').innerHTML = html + `</tbody></table>`;
+    function getShiftInfo() {
+        const now = new Date();
+        const hr = now.getHours();
+        const mn = now.getMinutes();
+        const time = hr + (mn/100);
+        const bulan = ["JANUARI","FEBRUARI","MARET","APRIL","MEI","JUNI","JULI","AGUSTUS","SEPTEMBER","OKTOBER","NOVEMBER","DESEMBER"];
+        const tglStr = `${now.getDate()} ${bulan[now.getMonth()]} ${now.getFullYear()}`;
+        let shift = (time > 20.00 || time <= 2.00) ? "SIANG" : "PAGI";
+        return { shift, tglStr };
     }
 
-    function formatNumber(n) { return n.toString().replace(/\B(?=(\d{3})+(?!\d))/g, "."); }
-    function showToast(m) { const t = document.getElementById('toast'); t.innerText = m; t.style.opacity = '1'; setTimeout(() => t.style.opacity = '0', 2000); }
-
-    function calc(i, fid, target) {
-        let val = document.getElementById(`${fid}_${i}`).value.replace(/[^0-9]/g, '');
-        let a = parseInt(val) || 0, t = parseInt(target) || 0;
-        document.getElementById(`acv_${fid}_${i}`).innerText = (t > 0) ? Math.round((a/t)*100) + "%" : "0%";
+    function render() {
+        const info = getShiftInfo();
+        document.getElementById('mainTitle').innerText = `Tahap Percobaan ( ${info.shift} )`;
+        const b = document.getElementById('outBody');
+        b.innerHTML = stores.map((s, i) => `
+            <tr>
+                <td class="stk"><span class="st-nm">${s.id}</span></td>
+                ${cols.map(c => `<td><div class="stack">
+                    <span class="t-val">${s.t[c.id]>0 ? (c.id=='s' ? s.t[c.id].toLocaleString('id-ID'):s.t[c.id]):''}</span>
+                    <input type="text" id="v_${c.id}_${i}" class="in-val" placeholder="0" oninput="calc(${i},'${c.id}',${s.t[c.id]},${c.h})">
+                    <span class="p-val" id="p_${c.id}_${i}"></span>
+                </div></td>`).join('')}
+            </tr>`).join('');
     }
 
-    function clearAll() {
-        document.querySelectorAll('textarea, input').forEach(el => el.value = "");
-        document.querySelectorAll('.acv-indicator').forEach(el => el.innerText = "0%");
-        showToast("BERSIH");
+    function calc(i, cid, tg, h) {
+        let iv = document.getElementById(`v_${cid}_${i}`), pv = document.getElementById(`p_${cid}_${i}`);
+        let rv = iv.value.replace(/[^0-9]/g, '');
+        if (!h || rv==="" || rv==="0" || tg===0) { pv.innerText = ""; return; }
+        pv.innerText = Math.round((parseInt(rv)/tg)*100) + "%";
     }
 
-    function importData() {
-        const text = document.getElementById('rawInput').value.toUpperCase();
-        if(!text) return;
-        
-        const keyMap = { 
-            "LUX":"lx", "POND":"pd", "RINSO":"rn", "SUNSILK":"ss", 
-            "WHISKAS":"ws", "WIPOL":"wp", "CUT FRUIT":"cf", "TTM":"tm", "PULSA":"p", "CASHBACK":"cb" 
-        };
-
-        const lines = text.split('\n');
-        let currentMode = "s";
-
-        lines.forEach(line => {
-            // Deteksi Mode berdasarkan header item
-            for (let key in keyMap) {
-                if(line.includes(key)) { currentMode = keyMap[key]; return; }
-            }
-
-            // Cari Toko dan ambil angka
-            tokoList.forEach((tk, i) => {
-                if(line.includes(tk.n)) {
-                    let parts = line.split('/').map(p => p.trim());
-                    let val = "";
-                    if (currentMode === 's') {
-                        val = parts[2] || ""; // Ambil ACV untuk sales
-                    } else {
-                        val = parts[parts.length - 2] || parts[1] || ""; // Ambil nilai sebelum slash terakhir
+    function proData() {
+        const raw = document.getElementById('txtIn').value.toUpperCase();
+        if (!raw) return;
+        let mode = "s";
+        raw.split('\n').forEach(l => {
+            cols.forEach(c => { if(l.includes(c.k)) mode = c.id; });
+            stores.forEach((s, i) => {
+                if (l.includes(s.id)) {
+                    let norm = l.replace(/\/\//g, '/');
+                    let parts = norm.split('/');
+                    let val = (mode === 'cf' || mode === 'cb') ? parts[1] : parts[2];
+                    let clean = (val || "").replace(/[^0-9]/g, '').trim();
+                    if (clean !== "" && clean !== "0") {
+                        document.getElementById(`v_${mode}_${i}`).value = clean;
+                        calc(i, mode, s.t[mode], cols.find(x=>x.id===mode).h);
                     }
-                    
-                    let cleanVal = val.replace(/[^0-9]/g, '');
-                    document.getElementById(`${currentMode}_${i}`).value = cleanVal;
-                    calc(i, currentMode, fields.find(f => f.id === currentMode).target(tk));
                 }
             });
         });
-        showToast("DATA DIPROSES");
+        show("Berhasil");
     }
 
-    function copyWA() {
-        const d = new Date();
-        const bln = ["JANUARI","FEBRUARI","MARET","APRIL","MEI","JUNI","JULI","AGUSTUS","SEPTEMBER","OKTOBER","NOVEMBER","DESEMBER"];
-        let res = `*LAPORAN ITEM FOKUS PAGI AREA PAK FADHOLI*\n${d.getDate()} ${bln[d.getMonth()]} ${d.getFullYear()}\n\n`;
-        
-        const reportItems = [
-            { id: 's',  head: "TOKO: target//act//acv\n", emoji: "" },
-            { id: 'lx', head: "🫧Lux 800ml🫧", emoji: "" },
-            { id: 'pd', head: "👩🏻Pond's 100/90ml👩🏻", emoji: "" },
-            { id: 'rn', head: "👚Rinso 700g👚", emoji: "" },
-            { id: 'ss', head: "💆🏻‍♀️Sunsilk 160ml🧖🏻‍♀️", emoji: "" },
-            { id: 'ws', head: "🐱whiskas 80g🐱", emoji: "" },
-            { id: 'wp', head: "🪣Wipol 750ml🪣", emoji: "" },
-            { id: 'cf', head: "🍍🍉 *CUT FRUIT* 🍉🍍", emoji: "", isS: true },
-            { id: 'tm', head: "🔥🔥 *TTM* 🔥🔥", emoji: "" },
-            { id: 'p',  head: "🏴‍☠️🏴‍☠️ *PULSA* 🏴‍☠️🏴‍☠️", emoji: "", isP: true },
-            { id: 'cb', head: "✨✨ *CASHBACK* ✨✨", emoji: "", isS: true }
-        ];
-
-        reportItems.forEach(item => {
-            res += (item.id === 's') ? item.head : `\n${item.head}\n\n`;
-            tokoList.forEach((tk, i) => {
-                let act = document.getElementById(`${item.id}_${i}`).value || "";
-                let acv = document.getElementById(`acv_${item.id}_${i}`).innerText;
-                let tgt = fields.find(f => f.id === item.id).target(tk);
-
-                if(item.id === 's') {
-                    res += `${i+1}.${tk.n} //${formatNumber(tk.s)}/${act ? formatNumber(act) : ''}/${act ? acv : ''}\n`;
-                } else if(item.isS) {
-                    res += `${i+1}.${tk.n} /${act}/\n`;
-                } else if(item.isP) {
-                    res += `${i+1}.${tk.n}/${tgt}k/${act ? act + 'k' : ''}/${act ? acv : ''}/\n`;
+    function waCopy() {
+        const info = getShiftInfo();
+        let r = `*LAPORAN ITEM FOKUS ${info.shift} AREA PAK FADHOLI*\n${info.tglStr}\n\nTOKO: target//act//acv\n`;
+        stores.forEach((s, i) => {
+            let actInput = document.getElementById(`v_s_${i}`).value;
+            let actVal = actInput.replace(/[^0-9]/g, '');
+            let targetSales = s.t.s.toLocaleString('id-ID');
+            if(actVal && actVal !== "0") {
+                let fmt = actVal.replace(/\B(?=(\d{3})+(?!\d))/g, ".");
+                let acv = document.getElementById(`p_s_${i}`).innerText;
+                r += `${i+1}.${s.id} //${targetSales}/${fmt}/${acv}\n`;
+            } else r += `${i+1}.${s.id} //${targetSales}//\n`;
+        });
+        cols.slice(1).forEach(c => {
+            r += `\n${c.head}\n\n`;
+            stores.forEach((s, i) => {
+                let actInput = document.getElementById(`v_${c.id}_${i}`).value || "";
+                let actVal = actInput.replace(/[^0-9]/g, '');
+                let targetItem = s.t[c.id];
+                if(actVal && actVal !== "0") {
+                    let acv = document.getElementById(`p_${c.id}_${i}`).innerText;
+                    let displayAct = actVal + (c.id==='p'?'k':'');
+                    if(c.id === 'cf' || c.id === 'cb') r += `${i+1}. ${s.id}/${displayAct}\n`;
+                    else r += `${i+1}. ${s.id}/${targetItem}/${displayAct}/${acv}\n`;
                 } else {
-                    res += `${i+1}.${tk.n}/${tgt}/${act}/${act ? acv : ''}/\n`;
+                    if(c.id === 'cf' || c.id === 'cb') r += `${i+1}. ${s.id}/\n`;
+                    else r += `${i+1}. ${s.id}/${targetItem}/\n`;
                 }
             });
         });
-
-        const el = document.createElement('textarea'); el.value = res; document.body.appendChild(el); el.select(); document.execCommand('copy'); document.body.removeChild(el);
-        showToast("LAPORAN DISALIN");
+        const tmp = document.createElement('textarea'); tmp.value = r.trim(); document.body.appendChild(tmp); tmp.select();
+        document.execCommand('copy'); document.body.removeChild(tmp);
+        show("Berhasil");
     }
 
-    initTable();
+    function resTab() { 
+        document.getElementById('txtIn').value = ""; 
+        render(); 
+        show("Berhasil"); 
+    }
+
+    function show(m) { 
+        let t = document.getElementById('toast'); 
+        t.innerText = m; 
+        t.style.opacity = '1'; 
+        setTimeout(() => t.style.opacity = '0', 2500); 
+    }
+
+    window.onload = render;
 </script>
 </body>
 </html>
