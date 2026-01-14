@@ -28,13 +28,22 @@
         .sidebar { 
             position: fixed; left: -100%; top: 0; height: 100%; width: 260px; 
             background: var(--white); transition: 0.3s cubic-bezier(0.16, 1, 0.3, 1); 
-            z-index: 2100; padding-top: 20px; border-right: 1px solid var(--border-color); 
+            z-index: 2100; 
+            padding-top: 20px; /* Spasi atas dikurangi agar teks naik */
+            border-right: 1px solid var(--border-color); 
         }
         .sidebar.active { left: 0; box-shadow: 5px 0 25px rgba(0,0,0,0.05); }
+        
+        /* Nav Item Sizing: 13px, Bold, Padding 15px 25px */
         .sidebar-item { 
-            display: block; padding: 20px 25px; text-decoration: none; 
-            font-size: 14px; font-weight: 700; color: var(--gray-dark); 
-            border-bottom: 1px solid #f1f1f1; text-transform: uppercase;
+            display: block; 
+            padding: 15px 25px; 
+            text-decoration: none; 
+            font-size: 13px; 
+            font-weight: 700; 
+            color: var(--gray-dark); 
+            border-bottom: 1px solid #f1f1f1; 
+            text-transform: uppercase;
         }
         .sidebar-item.logout { color: var(--red-logout); border-bottom: none; }
         
@@ -180,7 +189,6 @@
     <input type="file" id="fileInput" style="display:none" accept=".xlsx, .xls">
 
     <script>
-        // Config Notifikasi Super Kecil
         const Toast = Swal.mixin({
             toast: true,
             position: 'bottom',
@@ -202,7 +210,6 @@
 
         const getCurrentMonth = () => new Date().toISOString().slice(0, 7);
 
-        // LOGIKA PENTING: Menggabungkan nominal jika Tanggal & Keperluan sama
         function gabungkanData(dataArray) {
             const map = new Map();
             dataArray.forEach(item => {
@@ -255,10 +262,7 @@
             }
             dataMaster.push({ Tanggal: tgl, Keterangan: ket, Nominal: nom });
             dataMaster = gabungkanData(dataMaster);
-            
-            // Simpan otomatis ke local storage
             localStorage.setItem('databaseMinesan', JSON.stringify(dataMaster));
-            
             loadCurrentMonth();
             document.getElementById('in-minus').value = "";
             Toast.fire({ title: 'Ditambahkan' });
@@ -269,7 +273,6 @@
             Toast.fire({ title: 'Tersimpan' });
         }
 
-        // FUNGSI HISTORY LANGSUNG BUKA PICKER HP
         function triggerMonthPicker() {
             document.getElementById('hidden-month-input').showPicker();
         }
@@ -335,7 +338,6 @@
             reader.readAsArrayBuffer(e.target.files[0]);
         };
 
-        // Jalankan saat pertama kali buka
         loadCurrentMonth();
     </script>
 </body>

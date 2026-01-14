@@ -15,7 +15,7 @@
             --bg-light: #f5f5f5;
             --bg-white: #ffffff;
             --grey-action: #666666;
-            --red-logout: #ff3b30; /* Tetap merah untuk Logout */
+            --red-logout: #ff3b30;
         }
 
         * { box-sizing: border-box; font-family: 'Inter', sans-serif; margin: 0; padding: 0; }
@@ -26,12 +26,23 @@
         .menu-btn { background: none; border: none; font-size: 28px; cursor: pointer; padding: 0; color: var(--text-main); display: flex; align-items: center; }
         .nav-title { font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; font-size: 1.1rem; color: var(--text-main); }
         
-        /* SIDEBAR */
-        .sidebar { position: fixed; left: -100%; top: 0; height: 100%; width: 75%; background: var(--bg-white); transition: 0.3s ease; z-index: 1100; padding: 40px 20px; box-shadow: 10px 0 20px rgba(0,0,0,0.05); }
+        /* SIDEBAR - Spasi atas dikurangi agar teks naik */
+        .sidebar { position: fixed; left: -100%; top: 0; height: 100%; width: 75%; background: var(--bg-white); transition: 0.3s ease; z-index: 1100; padding-top: 20px; box-shadow: 10px 0 20px rgba(0,0,0,0.05); }
         .sidebar.active { left: 0; }
         .overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.3); display: none; z-index: 1050; }
         .overlay.active { display: block; }
-        .nav-item { display: block; padding: 15px 0; font-weight: 700; font-size: 1rem; text-decoration: none; color: var(--text-main); text-transform: uppercase; cursor: pointer; }
+
+        /* Nav Item Sizing: 13px, Bold, Padding 15px 25px */
+        .nav-item { 
+            display: block; 
+            padding: 15px 25px; 
+            font-weight: 700; 
+            font-size: 13px; 
+            text-decoration: none; 
+            color: var(--text-main); 
+            text-transform: uppercase; 
+            cursor: pointer; 
+        }
         .nav-divider { height: 1px; background-color: var(--border-color); margin: 5px 0; width: 100%; }
 
         /* UI ELEMENTS */
@@ -73,14 +84,6 @@
     <a href="index.html" class="nav-item" style="color:var(--red-logout)">LOGOUT</a>
 </div>
 
-<div id="actionModal" class="modal">
-    <div class="modal-header">
-        <h3 id="modalTitle" style="font-weight: 800; font-size: 1rem;">DAFTAR DATA</h3>
-        <button onclick="closeModal()" style="border:none; background:var(--bg-light); width: 32px; height: 32px; border-radius: 50%; font-size: 16px; cursor: pointer;">✕</button>
-    </div>
-    <div id="modalList" class="modal-body"></div>
-</div>
-
 <nav class="navbar">
     <button class="menu-btn" onclick="toggleMenu()">☰</button>
     <div class="nav-title">TAHAP PERCOBAAN</div>
@@ -118,6 +121,14 @@
             <button class="btn-outline" onclick="openSampahModal()">HAPUS</button>
         </div>
     </div>
+</div>
+
+<div id="actionModal" class="modal">
+    <div class="modal-header">
+        <h3 id="modalTitle" style="font-weight: 800; font-size: 1rem;">DAFTAR DATA</h3>
+        <button onclick="closeModal()" style="border:none; background:var(--bg-light); width: 32px; height: 32px; border-radius: 50%; font-size: 16px; cursor: pointer;">✕</button>
+    </div>
+    <div id="modalList" class="modal-body"></div>
 </div>
 
 <div id="toast">Notifikasi</div>
