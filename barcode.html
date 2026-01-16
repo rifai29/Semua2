@@ -131,7 +131,6 @@
                         <th>Kode</th>
                         <th>Barcode</th>
                         <th class="col-deskripsi">Deskripsi Produk</th>
-                        <th>Ukuran</th>
                         <th class="text-center">Selving</th>
                         <th class="text-center">Baris</th>
                         <th class="text-center">Planogram</th>
@@ -178,7 +177,6 @@
                 <td>${it.kode}</td>
                 <td>${it.barcode || '-'}</td>
                 <td class="col-deskripsi">${it.nama}</td>
-                <td>${it.ukuran || '-'}</td>
                 <td class="text-center">${it.selving || '-'}</td>
                 <td class="text-center">${it.baris || '-'}</td>
                 <td class="text-center"><span class="badge-plano">${it.planogram || '-'}</span></td>
@@ -195,7 +193,7 @@
         let count = 0;
 
         rows.forEach(r => {
-            const rowPlano = r.cells[7].innerText.toUpperCase();
+            const rowPlano = r.cells[6].innerText.toUpperCase(); // Index Planogram bergeser ke 6
             const rowNama = r.cells[3].innerText.toUpperCase();
             const rowKode = r.cells[1].innerText.toUpperCase();
             const rowBarcode = r.cells[2].innerText.toUpperCase();
@@ -225,15 +223,24 @@
                 const wb = XLSX.read(data, { type: 'array' });
                 const json = XLSX.utils.sheet_to_json(wb.Sheets[wb.SheetNames[0]]);
                 
-                const newData = json.map(row => ({
-                    kode: String(row["Kode Barang"] || row["kode"] || ""),
-                    barcode: String(row["Barcode"] || row["barcode"] || ""),
-                    nama: String(row["Deskripsi Produk"] || row["nama"] || ""),
-                    ukuran: String(row["Ukuran"] || row["ukuran"] || ""),
-                    selving: String(row["Selving"] || row["selving"] || ""),
-                    baris: String(row["Baris"] || row["baris"] || ""),
-                    planogram: String(row["Planogram"] || row["Rak"] || "UNSET").toUpperCase()
-                }));
+                const newData = json.map(row => {
+                    // Fungsi untuk mencari nama kolom secara fleksibel
+                    const getV = (targets) => {
+                        for (let key in row) {
+                            if (targets.includes(key.trim().toLowerCase())) return row[key];
+                        }
+                        return "";
+                    };
+
+                    return {
+                        kode: String(getV(["kode barang", "kode", "sku"]) || ""),
+                        barcode: String(getV(["barcode", "barcode", "ean"]) || ""),
+                        nama: String(getV(["deskripsi produk", "deskripsi", "nama barang", "nama"]) || ""),
+                        selving: String(getV(["selving", "rak", "shelf"]) || ""),
+                        baris: String(getV(["baris", "baris", "line"]) || ""),
+                        planogram: String(getV(["planogram", "plano", "no rak", "rak"]) || "UNSET").toUpperCase()
+                    };
+                });
 
                 db = [...db, ...newData];
                 localStorage.setItem('mbData', JSON.stringify(db));
