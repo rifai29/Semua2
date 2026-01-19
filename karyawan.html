@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Alfamidi HR Premium - Monokrom</title>
+    <title>Tahap Percobaan</title>
     <script src="https://cdn.sheetjs.com/xlsx-latest/package/dist/xlsx.full.min.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <style>
@@ -14,64 +14,77 @@
             --border-color: #dddddd; 
             --bg-light: #f5f5f5;
             --bg-white: #ffffff;
-            --grey-action: #666666;
-            --red-logout: #ff3b30;
+            --red-action: #ff3b30;
+            --blue-action: #007aff;
         }
 
         * { box-sizing: border-box; font-family: 'Inter', sans-serif; margin: 0; padding: 0; }
         body { background-color: var(--bg-white); color: var(--text-main); -webkit-tap-highlight-color: transparent; overflow-x: hidden; }
 
-        /* NAVBAR */
-        .navbar { background: var(--bg-white); padding: 18px 20px; display: flex; align-items: center; position: sticky; top: 0; z-index: 1000; border-bottom: 1px solid var(--border-color); gap: 12px; }
-        .menu-btn { background: none; border: none; font-size: 28px; cursor: pointer; padding: 0; color: var(--text-main); display: flex; align-items: center; }
-        .nav-title { font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; font-size: 1.1rem; color: var(--text-main); }
+        /* NAVBAR & HAMBURGER (Asli) */
+        .navbar{position:fixed;top:0;left:0;right:0;height:60px;background:rgba(255,255,255,0.8);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);display:flex;align-items:center;padding:0 15px;z-index:1000;border-bottom:1px solid rgba(0,0,0,0.05)}
+        .nav-content{width:100%;display:flex;justify-content:space-between;align-items:center}
+        .menu-btn{background:none;border:none;cursor:pointer;padding:10px;display:flex;flex-direction:column;gap:5px}
+        .icon-bar{width:22px;height:2px;background:#1e293b;border-radius:2px;transition:0.3s}
+        .nav-title{font-size:0.85rem;font-weight:800;letter-spacing:1px;color:#1e293b;text-transform:uppercase;text-align:center}
+        .nav-right{width:42px}
         
-        /* SIDEBAR - Spasi atas dikurangi agar teks naik */
-        .sidebar { position: fixed; left: -100%; top: 0; height: 100%; width: 75%; background: var(--bg-white); transition: 0.3s ease; z-index: 1100; padding-top: 20px; box-shadow: 10px 0 20px rgba(0,0,0,0.05); }
-        .sidebar.active { left: 0; }
-        .overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.3); display: none; z-index: 1050; }
-        .overlay.active { display: block; }
-
-        /* Nav Item Sizing: 13px, Bold, Padding 15px 25px */
-        .nav-item { 
-            display: block; 
-            padding: 15px 25px; 
-            font-weight: 700; 
-            font-size: 13px; 
-            text-decoration: none; 
-            color: var(--text-main); 
-            text-transform: uppercase; 
-            cursor: pointer; 
-        }
-        .nav-divider { height: 1px; background-color: var(--border-color); margin: 5px 0; width: 100%; }
+        /* SIDEBAR (Asli) */
+        .sidebar{position:fixed;left:-100%;top:0;height:100%;width:280px;max-width:85%;background:var(--bg-white);transition:all .4s cubic-bezier(.25,.8,.25,1);z-index:1100;padding:24px;box-shadow:20px 0 40px rgba(0,0,0,.1);display:flex;flex-direction:column;border-radius:0 24px 24px 0} 
+        .sidebar.active{left:0}
+        .overlay{position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,.4);backdrop-filter:blur(4px);z-index:1050;display:none} 
+        .overlay.active{display:block}
+        .nav-item{display:flex;align-items:center;padding:16px 24px;font-weight:600;font-size:14px;text-decoration:none;color:var(--text-main);text-transform:uppercase;letter-spacing:0.5px;transition:all .2s ease;border-radius:12px;margin:4px 12px;gap:12px} 
+        .nav-divider{height:1px;background:linear-gradient(to right,transparent,var(--border-color),transparent);margin:15px 25px;opacity:0.5}
 
         /* UI ELEMENTS */
-        .container { padding: 15px; max-width: 480px; margin: auto; }
-        .card { background: var(--bg-white); border-radius: 16px; padding: 20px; margin-bottom: 15px; border: 1px solid var(--border-color); }
-        label { display: block; font-size: 0.65rem; font-weight: 700; color: var(--text-muted); margin-bottom: 8px; text-transform: uppercase; }
-        input { width: 100%; padding: 14px; border: 1.5px solid var(--border-color); border-radius: 12px; margin-bottom: 15px; outline: none; font-size: 0.95rem; color: var(--text-main); }
-        .action-row { display: flex; gap: 10px; align-items: center; }
-        .btn-primary { flex: 2; padding: 18px; border: none; border-radius: 12px; background: var(--accent-black); color: white; font-weight: 700; text-transform: uppercase; cursor: pointer; font-size: 0.85rem; }
-        .total-box { flex: 1; background: var(--bg-light); padding: 8px; border-radius: 12px; text-align: center; border: 1.5px solid var(--border-color); height: 58px; display: flex; flex-direction: column; justify-content: center; }
-        .action-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: 20px; }
-        .btn-outline { padding: 14px; border: 1.5px solid var(--border-color); border-radius: 12px; background: var(--bg-white); font-weight: 700; font-size: 0.75rem; text-transform: uppercase; cursor: pointer; text-align: center; color: var(--text-main); display: flex; align-items: center; justify-content: center; }
+        .container { padding: 15px; padding-top: 75px; max-width: 480px; margin: auto; }
+        .card{background:#fff;border-radius:20px;padding:20px;margin-bottom:20px;border:1px solid rgba(0,0,0,0.05);box-shadow:0 10px 25px rgba(0,0,0,0.03)}
+        label{display:block;font-size:10px;font-weight:700;color:var(--text-main);opacity:0.6;margin-bottom:8px;text-transform:uppercase;letter-spacing:1.5px}
+        input{width:100%;padding:14px;border:1.5px solid #eee;border-radius:12px;margin-bottom:15px;outline:none;font-size:16px;background:#f9f9f9}
+        input:focus{border-color:#000;background:#fff}
         
+        /* SEARCH BOX */
+        .search-box { margin-bottom: 10px; padding: 10px; border-radius: 10px; border: 1px solid #eee; font-size: 14px; background: #fff; }
+
+        .action-row{display:flex;gap:12px;align-items:center;margin-top:5px}
+        .btn-primary{flex:2;padding:16px;border:none;border-radius:14px;background:linear-gradient(135deg, #2d2d2d, #000);color:#fff;font-weight:700;text-transform:uppercase;font-size:13px;cursor:pointer}
+        .total-box { flex: 1; background: #f8fafc; padding: 6px; border-radius: 10px; text-align: center; border: 1px solid #e2e8f0; }
+
         /* TABLE */
-        .data-row { display: grid; grid-template-columns: 75px 1fr 85px; padding: 12px 5px; border-bottom: 1px solid var(--bg-light); font-size: 0.72rem; text-align: center; align-items: center; }
-        .nama-col { font-weight: 600; text-align: left; padding: 0 8px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; color: var(--text-main); }
+        .table-wrapper { max-height: 250px; overflow-y: auto; scrollbar-width: none; border: 1px solid #f1f1f1; border-radius: 10px; margin-bottom: 15px; }
+        .data-row{display:grid;grid-template-columns:70px 1fr 85px;padding:10px 8px;border-bottom:1px solid #f9f9f9;font-size:0.75rem;align-items:center}
+        .nama-col{font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+
+        /* ACTION GRID (PENEMPATAN TOMBOL DIPERBAIKI) */
+        .action-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+        .btn-action { 
+            padding: 12px; 
+            border-radius: 10px; 
+            font-weight: 700; 
+            font-size: 11px; 
+            text-transform: uppercase; 
+            cursor: pointer; 
+            display: flex; 
+            align-items: center; 
+            justify-content: center;
+            border: 1.5px solid transparent;
+            background: #fff;
+            transition: 0.2s;
+        }
+        .btn-action:active { transform: scale(0.96); }
+        
+        .btn-blue { border-color: var(--blue-action); color: var(--blue-action); }
+        .btn-black { border-color: var(--accent-black); color: var(--accent-black); }
+        .btn-red { border-color: var(--red-action); color: var(--red-action); }
 
         /* MODAL */
-        .modal { position: fixed; inset: 0; background: var(--bg-white); z-index: 2000; display: none; flex-direction: column; }
-        .modal.active { display: flex; }
-        .modal-header { padding: 20px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border-color); }
-        .modal-body { padding: 15px; overflow-y: auto; flex-grow: 1; background: var(--bg-light); }
-        .list-card { background: var(--bg-white); border-radius: 14px; padding: 16px; margin-bottom: 12px; border: 1px solid var(--border-color); }
-
-        /* BUTTONS IN MODAL */
-        .btn-modal-action { width: 100%; padding: 10px; border-radius: 8px; cursor: pointer; font-weight: 700; font-size: 0.7rem; text-transform: uppercase; border: 1px solid var(--border-color); background: var(--bg-white); color: var(--text-main); margin-top: 10px; }
-        .btn-half { flex: 1; padding: 8px; border-radius: 8px; cursor: pointer; font-weight: 700; font-size: 0.65rem; border: 1px solid var(--border-color); background: var(--bg-white); color: var(--text-main); }
-
-        #toast { position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%); background: var(--accent-black); color: #fff; padding: 12px 25px; border-radius: 50px; font-size: 0.75rem; display: none; z-index: 3000; }
+        .modal{position:fixed;inset:0;background:var(--bg-white);z-index:2000;display:none;flex-direction:column}
+        .modal.active{display:flex}
+        .modal-header{padding:16px 20px;display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid var(--border-color)}
+        .modal-body{padding:20px;overflow-y:auto;flex-grow:1;background:#f8fafc}
+        
+        #toast{position:fixed;bottom:30px;left:50%;transform:translateX(-50%);background:#1e293b;color:#fff;padding:12px 24px;border-radius:50px;font-size:0.8rem;display:none;z-index:3000}
     </style>
 </head>
 <body>
@@ -81,52 +94,62 @@
 <div class="sidebar" id="sidebar">
     <a href="index.html" class="nav-item">BERANDA</a>
     <div class="nav-divider"></div>
-    <a href="index.html" class="nav-item" style="color:var(--red-logout)">LOGOUT</a>
+    <a href="index.html" class="nav-item" style="color:var(--red-action)">LOGOUT</a>
+</div>
 </div>
 
 <nav class="navbar">
-    <button class="menu-btn" onclick="toggleMenu()">☰</button>
-    <div class="nav-title">TAHAP PERCOBAAN</div>
+    <div class="nav-content">
+        <button class="menu-btn" onclick="toggleMenu()">
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+        </button>
+        <div class="nav-title">TAHAP PERCOBAAN</div>
+        <div class="nav-right"></div>
+    </div>
 </nav>
 
 <div class="container">
     <div class="card">
         <label>Input Karyawan</label>
-        <input type="tel" id="nik" placeholder="NIK" onkeyup="logicMasa(this.value, 'masa')">
+        <input type="tel" id="nik" placeholder="NIK" onkeyup="updateMasa()">
         <input type="text" id="nama" placeholder="Nama" oninput="this.value = this.value.toUpperCase()">
-        <input type="text" id="masa" readonly placeholder="Masa" style="background:var(--bg-light); font-weight: 700; border-color: transparent;">
+        <input type="text" id="masa" readonly placeholder="Masa Kerja" style="background:#f0f0f0; border-color:transparent;">
 
         <div class="action-row">
-            <button class="btn-primary" onclick="simpan()">SIMPAN</button>
+            <button class="btn-primary" onclick="simpan()">SIMPAN DATA</button>
             <div class="total-box">
-                <span style="font-size:0.5rem; font-weight:800; color:var(--text-muted)">AKTIF</span>
-                <h2 id="totalCount" style="font-size:1.1rem; font-weight:800">0</h2>
+                <span style="font-size:0.5rem;font-weight:800;color:#64748b">AKTIF</span>
+                <h2 id="totalCount" style="font-size:1.1rem;margin:0">0</h2>
             </div>
         </div>
     </div>
 
-    <div class="card" style="padding: 15px 5px;">
-        <label style="margin-left: 10px;">Daftar Karyawan</label>
-        <div class="data-row" style="font-weight:800; color:var(--text-muted); font-size:0.6rem; border-bottom: 2px solid var(--bg-light); padding-bottom: 8px;">
-            <span>NIK</span><span>NAMA LENGKAP</span><span>MASA</span>
-        </div>
-        <div id="mainTable" style="max-height: 300px; overflow-y: auto;"></div>
+    <div class="card">
+        <label>Daftar & Kelola</label>
+        
+        <input type="text" id="searchInput" class="search-box" placeholder="Cari Nama/NIK..." onkeyup="filterData()">
 
-        <div class="action-grid" style="padding: 0 10px;">
-            <button class="btn-outline" onclick="unduh()">EKSPOR</button>
-            <label class="btn-outline">
+        <div class="table-wrapper">
+            <div id="mainTable"></div>
+        </div>
+        
+        <div class="action-grid">
+            <button class="btn-action btn-blue" onclick="unduh()">EKSPOR</button>
+            <label class="btn-action btn-blue" style="margin:0">
                 IMPOR <input type="file" hidden onchange="imporExcel(this)">
             </label>
-            <button class="btn-outline" onclick="openSemuaModal()">SEMUA</button>
-            <button class="btn-outline" onclick="openSampahModal()">HAPUS</button>
+            <button class="btn-action btn-black" onclick="openSemuaModal()">SEMUA DATA</button>
+            <button class="btn-action btn-red" onclick="openSampahModal()">SAMPAH</button>
         </div>
     </div>
 </div>
 
 <div id="actionModal" class="modal">
     <div class="modal-header">
-        <h3 id="modalTitle" style="font-weight: 800; font-size: 1rem;">DAFTAR DATA</h3>
-        <button onclick="closeModal()" style="border:none; background:var(--bg-light); width: 32px; height: 32px; border-radius: 50%; font-size: 16px; cursor: pointer;">✕</button>
+        <h3 id="modalTitle" style="font-size:16px">PENGATURAN DATA</h3>
+        <button onclick="closeModal()" style="border:none;background:#eee;width:30px;height:30px;border-radius:50%;cursor:pointer">✕</button>
     </div>
     <div id="modalList" class="modal-body"></div>
 </div>
@@ -134,15 +157,15 @@
 <div id="toast">Notifikasi</div>
 
 <script>
-    let dbAktif = JSON.parse(localStorage.getItem('hr_final_v1')) || [];
-    let dbSampah = JSON.parse(localStorage.getItem('hr_final_trash_v1')) || [];
+    let dbAktif = JSON.parse(localStorage.getItem('hr_v4_aktif')) || [];
+    let dbSampah = JSON.parse(localStorage.getItem('hr_v4_sampah')) || [];
 
     function toggleMenu() {
         document.getElementById('sidebar').classList.toggle('active');
         document.getElementById('overlay').classList.toggle('active');
     }
 
-    function logicMasa(nik, targetIdOrReturn) {
+    function hitungMasaKerja(nik) {
         let val = nik.replace(/[^0-9]/g, '');
         if (val.length >= 6) {
             const thn = parseInt("20" + val.substring(2, 4));
@@ -150,83 +173,90 @@
             const tglMasuk = new Date(thn, bln, 1);
             const tglSkr = new Date();
             let totalBulan = (tglSkr.getFullYear() - tglMasuk.getFullYear()) * 12 + (tglSkr.getMonth() - tglMasuk.getMonth());
-            let hasil = (totalBulan < 0) ? "0 Thn 0 Bln" : Math.floor(totalBulan/12) + " Thn " + (totalBulan%12) + " Bln";
-            if(targetIdOrReturn === 'masa') document.getElementById('masa').value = hasil;
-            return hasil;
+            if (totalBulan < 0) return "0 Thn 0 Bln";
+            return Math.floor(totalBulan/12) + " Thn " + (totalBulan%12) + " Bln";
         }
-        if(targetIdOrReturn === 'masa') document.getElementById('masa').value = "";
-        return "0 Thn 0 Bln";
+        return "";
+    }
+
+    function updateMasa() {
+        document.getElementById('masa').value = hitungMasaKerja(document.getElementById('nik').value);
     }
 
     function simpan() {
         const nik = document.getElementById('nik').value;
         const nama = document.getElementById('nama').value;
         const masa = document.getElementById('masa').value;
-        if(!nik || !nama) return showToast("Isi NIK & Nama!");
+        if(!nik || !nama) return showToast("Lengkapi data!");
         dbAktif.unshift({ nik, nama, masa: masa || "0 Thn 0 Bln" });
-        saveAll();
-        reset();
-        showToast("Tersimpan!");
+        sync();
+        resetInput();
+        showToast("Tersimpan");
     }
 
-    function renderAktif() {
+    function renderTable(data = dbAktif) {
         document.getElementById('totalCount').innerText = dbAktif.length;
-        document.getElementById('mainTable').innerHTML = dbAktif.map(i => `
+        document.getElementById('mainTable').innerHTML = data.map(i => `
             <div class="data-row">
-                <span>${i.nik}</span>
+                <span style="color:#888">${i.nik}</span>
                 <span class="nama-col">${i.nama}</span>
-                <span style="color:var(--text-muted)">${i.masa}</span>
+                <span style="text-align:right; font-weight:700">${i.masa}</span>
             </div>
-        `).join('');
+        `).join('') || '<div style="padding:20px; text-align:center; color:#ccc; font-size:12px">Tidak ada data</div>';
     }
 
-    function saveAll() {
-        localStorage.setItem('hr_final_v1', JSON.stringify(dbAktif));
-        localStorage.setItem('hr_final_trash_v1', JSON.stringify(dbSampah));
-        renderAktif();
+    function filterData() {
+        const key = document.getElementById('searchInput').value.toLowerCase();
+        const res = dbAktif.filter(i => i.nama.toLowerCase().includes(key) || i.nik.includes(key));
+        renderTable(res);
+    }
+
+    function sync() {
+        localStorage.setItem('hr_v4_aktif', JSON.stringify(dbAktif));
+        localStorage.setItem('hr_v4_sampah', JSON.stringify(dbSampah));
+        renderTable();
     }
 
     function openSemuaModal() {
         const modal = document.getElementById('actionModal');
         const list = document.getElementById('modalList');
         document.getElementById('modalTitle').innerText = "DATA AKTIF";
-        list.innerHTML = dbAktif.length === 0 ? '<div style="text-align:center; padding:30px; color:var(--text-muted)">Kosong</div>' : "";
         modal.classList.add('active');
-        dbAktif.forEach((item, idx) => {
-            list.innerHTML += `
-                <div class="list-card">
-                    <b>${item.nama}</b><br><small style="color:var(--text-muted)">${item.nik} | ${item.masa}</small><br>
-                    <button onclick="keSampah(${idx})" class="btn-modal-action">PINDAHKAN KE SAMPAH</button>
-                </div>`;
-        });
+        list.innerHTML = dbAktif.map((item, idx) => `
+            <div style="background:#fff; padding:15px; border-radius:12px; margin-bottom:10px; border:1px solid #eee">
+                <div style="font-weight:700">${item.nama}</div>
+                <div style="font-size:11px; color:#888">${item.nik} | ${item.masa}</div>
+                <button onclick="keSampah(${idx})" style="width:100%; margin-top:10px; padding:8px; background:none; border:1.5px solid #eee; border-radius:8px; cursor:pointer">HAPUS KE SAMPAH</button>
+            </div>
+        `).join('') || '<center>Kosong</center>';
     }
 
     function openSampahModal() {
         const modal = document.getElementById('actionModal');
         const list = document.getElementById('modalList');
-        document.getElementById('modalTitle').innerText = "SAMPAH (DIBERSIHKAN)";
-        list.innerHTML = dbSampah.length === 0 ? '<div style="text-align:center; padding:30px; color:var(--text-muted)">Kosong</div>' : "";
+        document.getElementById('modalTitle').innerText = "SAMPAH";
         modal.classList.add('active');
-        dbSampah.forEach((item, idx) => {
-            list.innerHTML += `
-                <div class="list-card">
-                    <b>${item.nama}</b><br><small style="color:var(--text-muted)">${item.nik}</small><br>
-                    <div style="display:flex; gap:8px; margin-top:10px;">
-                        <button onclick="pulihkan(${idx})" class="btn-half">PULIHKAN</button>
-                        <button onclick="permanen(${idx})" class="btn-half" style="background:var(--bg-light)">HAPUS TOTAL</button>
-                    </div>
-                </div>`;
-        });
+        list.innerHTML = dbSampah.map((item, idx) => `
+            <div style="background:#fff; padding:15px; border-radius:12px; margin-bottom:10px; border:1px solid #eee">
+                <div style="font-weight:700">${item.nama}</div>
+                <div style="display:flex; gap:10px; margin-top:10px">
+                    <button onclick="pulihkan(${idx})" style="flex:1; padding:8px; border-radius:8px; border:1px solid #ddd">PULIHKAN</button>
+                    <button onclick="hapusTotal(${idx})" style="flex:1; padding:8px; border-radius:8px; background:var(--red-action); color:#fff; border:none">PERMANEN</button>
+                </div>
+            </div>
+        `).join('') || '<center>Sampah Kosong</center>';
     }
 
-    function keSampah(idx) { dbSampah.unshift(dbAktif.splice(idx, 1)[0]); saveAll(); openSemuaModal(); }
-    function pulihkan(idx) { dbAktif.unshift(dbSampah.splice(idx, 1)[0]); saveAll(); openSampahModal(); }
-    function permanen(idx) { if(confirm("Hapus permanen data ini?")) { dbSampah.splice(idx, 1); saveAll(); openSampahModal(); } }
-    
-    function unduh() { const ws = XLSX.utils.json_to_sheet(dbAktif); const wb = XLSX.utils.book_new(); XLSX.utils.book_append_sheet(wb, ws, "Data"); XLSX.writeFile(wb, "Data_HR.xlsx"); }
-    function closeModal() { document.getElementById('actionModal').classList.remove('active'); }
-    function reset() { document.getElementById('nik').value = ""; document.getElementById('nama').value = ""; document.getElementById('masa').value = ""; }
-    function showToast(m) { const t = document.getElementById('toast'); t.innerText = m; t.style.display = 'block'; setTimeout(() => t.style.display = 'none', 2000); }
+    function keSampah(idx) { dbSampah.unshift(dbAktif.splice(idx, 1)[0]); sync(); openSemuaModal(); }
+    function pulihkan(idx) { dbAktif.unshift(dbSampah.splice(idx, 1)[0]); sync(); openSampahModal(); }
+    function hapusTotal(idx) { if(confirm("Hapus selamanya?")) { dbSampah.splice(idx, 1); sync(); openSampahModal(); } }
+
+    function unduh() {
+        const ws = XLSX.utils.json_to_sheet(dbAktif);
+        const wb = XLSX.utils.book_new();
+        XLSX.utils.book_append_sheet(wb, ws, "Data");
+        XLSX.writeFile(wb, "Data_Karyawan.xlsx");
+    }
 
     function imporExcel(input) {
         if (!input.files[0]) return;
@@ -234,19 +264,27 @@
         reader.onload = (e) => {
             const data = new Uint8Array(e.target.result);
             const wb = XLSX.read(data, {type: 'array'});
-            const json = XLSX.utils.sheet_to_json(wb.Sheets[wb.SheetNames[0]]);
-            dbAktif = json.map(row => ({
+            dbAktif = XLSX.utils.sheet_to_json(wb.Sheets[wb.SheetNames[0]]).map(row => ({
                 nik: String(row.nik || row.NIK || ""),
                 nama: String(row.nama || row.NAMA || "").toUpperCase(),
-                masa: row.masa || row.MASA || logicMasa(String(row.nik || row.NIK || ""), 'return')
+                masa: row.masa || row.MASA || hitungMasaKerja(String(row.nik || row.NIK || ""))
             }));
-            saveAll();
+            sync();
             showToast("Impor Sukses");
         };
         reader.readAsArrayBuffer(input.files[0]);
     }
 
-    renderAktif();
+    function resetInput() {
+        document.getElementById('nik').value = "";
+        document.getElementById('nama').value = "";
+        document.getElementById('masa').value = "";
+    }
+    
+    function closeModal() { document.getElementById('actionModal').classList.remove('active'); }
+    function showToast(m) { const t = document.getElementById('toast'); t.innerText = m; t.style.display = 'block'; setTimeout(() => t.style.display = 'none', 2000); }
+
+    renderTable();
 </script>
 </body>
 </html>
